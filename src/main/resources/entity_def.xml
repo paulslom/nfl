@@ -1,0 +1,92 @@
+<Property>
+
+	<NameValuePairs>
+	
+		<YesOrNo>
+		
+			<entry>
+				<code>Select</code>
+				<value>-Select-</value>
+			</entry>  
+			<entry>
+				<code>Y</code>
+				<value>Yes</value>
+			</entry>
+			<entry>
+				<code>N</code>
+				<value>No</value>
+			</entry>
+			
+		</YesOrNo>
+		
+		<Integers1To15>
+			<entry>
+				<code></code>
+				<value>-Select-</value>
+			</entry>  
+			<entry>
+				<code>1</code>
+				<value>1</value>
+			</entry>
+			<entry>
+				<code>2</code>
+				<value>2</value>
+			</entry>
+			<entry>
+				<code>3</code>
+				<value>3</value>
+			</entry>
+			<entry>
+				<code>4</code>
+				<value>4</value>
+			</entry>
+			<entry>
+				<code>5</code>
+				<value>5</value>
+			</entry>
+			<entry>
+				<code>6</code>
+				<value>6</value>
+			</entry>
+			<entry>
+				<code>7</code>
+				<value>7</value>
+			</entry>
+			<entry>
+				<code>8</code>
+				<value>8</value>
+			</entry>
+			<entry>
+				<code>9</code>
+				<value>9</value>
+			</entry>
+			<entry>
+				<code>10</code>
+				<value>10</value>
+			</entry>
+			<entry>
+				<code>11</code>
+				<value>11</value>
+			</entry>
+			<entry>
+				<code>12</code>
+				<value>12</value>
+			</entry>
+			<entry>
+				<code>13</code>
+				<value>13</value>
+			</entry>
+			<entry>
+				<code>14</code>
+				<value>14</value>
+			</entry>
+			<entry>
+				<code>15</code>
+				<value>15</value>
+			</entry>
+		</Integers1To15>
+				
+	</NameValuePairs>
+
+</Property>
+

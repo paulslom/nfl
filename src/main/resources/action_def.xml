@@ -1,0 +1,128 @@
+<Property>
+  <AppendToNode>NFLStandardActionSettings</AppendToNode>
+ 
+  <NFLStandardActionSettings>
+  
+  	<Action>
+		<name>DraftOrderRulesShowFormAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>DraftOrderRulesShowFormBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>GamesListAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>GamesListBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>GameShowUpdateFormAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>GameShowUpdateFormBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>GameUpdateAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>GameUpdateBusiness</businessServiceRef>	   
+	</Action>
+		
+	<Action>
+		<name>LoginAction</name>
+		<actionForward>success</actionForward>
+	    <businessServiceRef>LoginBusiness</businessServiceRef>
+	</Action>
+	
+	<Action>
+		<name>MenuAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>MenuBusiness</businessServiceRef>	   
+	</Action>	
+	
+	<Action>
+		<name>PlayoffBracketsAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>PlayoffBracketsBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>PlayoffsSetupShowFormAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>PlayoffsSetupShowFormBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>PlayoffsSetupAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>PlayoffsSetupBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>ReportDraftAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>ReportDraftBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>ReportScheduleAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>ReportScheduleBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>CommonGamesShowFormAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>CommonGamesShowFormBusiness</businessServiceRef>	   
+	</Action>
+		
+	<Action>
+		<name>CommonGamesSelectionAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>CommonGamesSelectionBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>CommonGamesResultAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>CommonGamesResultBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>ReportStandingsAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>ReportStandingsBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>ScoresListAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>ScoresListBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>ScoresUpdateAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>ScoresUpdateBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>SeasonChosenAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>SeasonChosenBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>SeasonCloneAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>SeasonCloneBusiness</businessServiceRef>	   
+	</Action>
+	
+	<Action>
+		<name>SeasonListAction</name>
+		<actionForward>success</actionForward>
+		<businessServiceRef>SeasonListBusiness</businessServiceRef>	   
+	</Action>	
+				
+  </NFLStandardActionSettings>
+
+</Property>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug">
+
+  <Properties>
+
+    <Property name="AppName">nfl</Property>
+    <Property name="Directory">C:/Paul/JavaWeb/applogs/${AppName}/</Property>
+    <Property name="Prefix">${AppName}-</Property>
+    <Property name="Suffix">-log.txt</Property> 
+    <Property name="FileName">${Directory}${Prefix}${Suffix}</Property>
+    <Property name="FilePattern">${Directory}${Prefix}%d{yyyy-MM-dd}${Suffix}</Property> 
+    <Property name="PatternLayout">[%d{yyyy-MMM-dd HH:mm:ss,SSS}]%-5p(%C{3}:%L) - %m%n</Property>
+
+  </Properties>
+
+  <Appenders>
+
+    <Console name="console-log" target="SYSTEM_OUT">
+      <PatternLayout pattern="${PatternLayout}"/>
+    </Console>
+ 
+    <RollingFile name="file-log" filePattern="${FilePattern}" bufferedIO="true" immediateFlush="true" filePermissions="rw-rw-r--">
+
+      <PatternLayout pattern="${PatternLayout}"/>
+    
+      <Policies>
+          <TimeBasedTriggeringPolicy interval="1"/>
+      </Policies>
+
+    </RollingFile>
+ 
+  </Appenders>
+
+  <Loggers>
+
+    <Root level="all"> 
+      <AppenderRef ref="console-log"/>
+      <AppenderRef ref="file-log"/>
+    </Root>
+
+  </Loggers>
+
+</Configuration>
+ 

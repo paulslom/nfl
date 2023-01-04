@@ -1,0 +1,74 @@
+<Property>
+	<AppendToNode>DAOSettings</AppendToNode>
+
+	<DAOSettings>
+	
+		<IgnoreValidationError>false</IgnoreValidationError>		
+	
+		<DAO>
+			<DAOname>ConferenceDAO</DAOname>
+		</DAO>
+				
+		<DAO>
+			<DAOname>DivisionDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>DraftDAO</DAOname>
+		</DAO>
+				
+		<DAO>
+			<DAOname>DummyDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>GameDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>GameTypeDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>LeagueSetupDAO</DAOname>
+		</DAO>
+				
+		<DAO>
+			<DAOname>LoginDAO</DAOname>
+		</DAO>
+			
+		<DAO>
+			<DAOname>MenuDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>CommonGamesDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>PlayoffsDAO</DAOname>
+		</DAO>
+				
+		<DAO>
+			<DAOname>ScheduleDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>SeasonDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>StandingsDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>TeamDAO</DAOname>
+		</DAO>
+		
+		<DAO>
+			<DAOname>WeekDAO</DAOname>
+		</DAO>
+								
+	</DAOSettings>
+	
+</Property>

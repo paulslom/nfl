@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+        "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions> 
+  <definition name="DraftOrderRulesDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/DraftOrderRules.jsp"/>     
+  </definition>
+  
+  <definition name="ExceptionDef" path="/WEB-INF/jsp/Layout.jsp">
+     <put name="header" value="/WEB-INF/jsp/Title.jsp"/>
+     <put name="fullBody" value="/WEB-INF/jsp/Exception.jsp"/>
+  </definition> 
+    
+  <definition name="GamesListDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/GamesList.jsp"/>     
+  </definition>
+  
+  <definition name="GameUpdateDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/GameUpdate.jsp"/>     
+  </definition>
+    
+  <definition name="HomeDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/Home.jsp"/>     
+  </definition>
+  
+  <definition name="LayoutDef" path="/WEB-INF/jsp/Layout.jsp">
+    <put name="header" value="/WEB-INF/jsp/Title.jsp"/>
+    <put name="errorMessages" value="/WEB-INF/jsp/Error.jsp"/>    
+  </definition>
+    
+  <definition name="LoginDef" extends="LayoutDef">
+     <put name="fullBody" value="/WEB-INF/jsp/Login.jsp"/>
+  </definition>
+  
+  <definition name="LogoutDef" path="/WEB-INF/jsp/Logout.jsp">
+     <put name="fullBody" value="/WEB-INF/jsp/Logout.jsp"/>
+  </definition>
+  
+  <definition name="PlayoffBracketsDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/PlayoffBrackets.jsp"/>     
+  </definition>
+  
+  <definition name="PlayoffsSetupDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/PlayoffsSetup.jsp"/>     
+  </definition>
+    
+  <definition name="ReportDraftDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/ReportDraft.jsp"/>     
+  </definition>
+  
+  <definition name="ReportScheduleDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/ReportSchedule.jsp"/>     
+  </definition>
+  
+  <definition name="CommonGamesSelectionDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/CommonGamesSelection.jsp"/>     
+  </definition>
+  
+  <definition name="CommonGamesResultDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/CommonGamesResult.jsp"/>     
+  </definition>
+  
+  <definition name="ReportStandingsDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/ReportStandings.jsp"/>     
+  </definition>
+   
+  <definition name="ScoresListDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/ScoresList.jsp"/>     
+  </definition>
+   
+  <definition name="SeasonListDef" extends="LayoutDef">
+     <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
+     <put name="fullBody" value="/WEB-INF/jsp/SeasonList.jsp"/>     
+  </definition>  
+          	 
+</tiles-definitions>
+
