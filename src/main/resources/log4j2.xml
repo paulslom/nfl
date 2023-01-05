@@ -33,7 +33,25 @@
 
   <Loggers>
 
-    <Root level="all"> 
+    <!-- Log app stuff -->
+    <Logger name="com.pas" level="debug" additivity="false">
+      <AppenderRef ref="console-log"/>
+      <AppenderRef ref="file-log"/>
+    </Logger>
+    
+    <!-- displaytag stuff -->
+    <Logger name="org.displaytag" level="error" additivity="false">
+      <AppenderRef ref="console-log"/>
+      <AppenderRef ref="file-log"/>
+    </Logger>  
+    
+    <!-- netty stuff -->
+    <Logger name="io.netty" level="error" additivity="false">
+      <AppenderRef ref="console-log"/>
+      <AppenderRef ref="file-log"/>
+    </Logger>  
+     
+    <Root level="error"> 
       <AppenderRef ref="console-log"/>
       <AppenderRef ref="file-log"/>
     </Root>

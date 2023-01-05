@@ -11,8 +11,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %> 
 
-<%@ taglib uri="http://struts-menu.sf.net/tag" prefix="menu" %>
-
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <%@ taglib uri="/WEB-INF/struts-html-el.tld" prefix="html-el" %> 

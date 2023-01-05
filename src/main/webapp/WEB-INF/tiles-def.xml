@@ -81,7 +81,7 @@
      <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
      <put name="fullBody" value="/WEB-INF/jsp/ScoresList.jsp"/>     
   </definition>
-   
+     
   <definition name="SeasonListDef" extends="LayoutDef">
      <put name="menu" value="/WEB-INF/jsp/Menu.jsp"/>      
      <put name="fullBody" value="/WEB-INF/jsp/SeasonList.jsp"/>     

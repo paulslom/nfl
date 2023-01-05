@@ -1,16 +1,13 @@
 package com.pas.nfl.action;
 
-
 import java.util.List;
+import java.util.Map;
 
 import com.pas.nfl.constants.INFLAppConstants;
 import com.pas.nfl.valueObject.Menu;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.navigator.menu.MenuComponent;
-import net.sf.navigator.menu.MenuRepository;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -53,53 +50,16 @@ public class MenuAction extends NFLStandardAction
 	
 		//get Value object from the request - in this case it is a list of menu components
 		ICacheManager cache = CacheManagerFactory.getCacheManager();
-		List<Menu> menuList = (List)cache.getObject("ResponseObject", req.getSession());
+		List<Map> menuList = (List)cache.getObject("ResponseObject", req.getSession());		
 		
-		MenuRepository sfRepository = new MenuRepository();
-		
-		//Get the repository from the application scope - and copy the
-		//DisplayerMappings from it.
-		
-		MenuRepository defaultRepository = (MenuRepository) req.getSession().getServletContext().getAttribute(MenuRepository.MENU_REPOSITORY_KEY);
-		sfRepository.setDisplayers(defaultRepository.getDisplayers());
-
-		for (int i = 0; i<menuList.size(); i++)         
-		{
-			Menu menuEntryFromList = menuList.get(i);
-			
-		    MenuComponent menuComponent = new MenuComponent();
-		   	
-		    String name = menuEntryFromList.getMenuName(); 
-		    menuComponent.setName(name);
-		    
-		    String parent = menuEntryFromList.getMenuParentName();
-		    
-		    log.debug("menu is: " + name + ", parent is: " + parent);
-		    
-		    if (parent != null)
-		    {
-		        MenuComponent parentMenu = sfRepository.getMenu(parent);
-		        if (parentMenu == null)
-		        {
-		            log.debug("parentMenu '" + parent + "' doesn't exist!");
-		            
-		            // create a temporary parentMenu
-		            parentMenu = new MenuComponent();
-		            parentMenu.setName(parent);
-		            sfRepository.addMenu(parentMenu);
-		        }
-
-		        menuComponent.setParent(parentMenu);
-		    }
-		    String title = menuEntryFromList.getMenuTitle();
-		    menuComponent.setTitle(title);
-		    
-		    String location = menuEntryFromList.getMenuLocation();
-		    menuComponent.setLocation(location);
-		    
-		    sfRepository.addMenu(menuComponent);
-		}
-		req.getSession().setAttribute(INFLAppConstants.SF_MENUREPOSITORY, sfRepository); 
+		Map<String, List<Menu>> menuMap = menuList.get(0); //should only be one entry here
+  			
+		req.getSession().setAttribute(INFLAppConstants.MENU_SCORES_BY_WEEK, menuMap.get(INFLAppConstants.MENU_SCORES_BY_WEEK)); 
+		req.getSession().setAttribute(INFLAppConstants.MENU_SCORES_BY_TEAM, menuMap.get(INFLAppConstants.MENU_SCORES_BY_TEAM)); 
+		req.getSession().setAttribute(INFLAppConstants.MENU_REPORTS, menuMap.get(INFLAppConstants.MENU_REPORTS)); 
+		req.getSession().setAttribute(INFLAppConstants.MENU_GAMES, menuMap.get(INFLAppConstants.MENU_GAMES)); 
+		req.getSession().setAttribute(INFLAppConstants.MENU_PLAYOFFS, menuMap.get(INFLAppConstants.MENU_PLAYOFFS)); 
+		req.getSession().setAttribute(INFLAppConstants.MENU_MISC, menuMap.get(INFLAppConstants.MENU_MISC)); 		
 		
 		ac.setActionForward(mapping.findForward(IAppConstants.AF_SUCCESS));
 		

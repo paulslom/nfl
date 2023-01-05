@@ -1,8 +1,9 @@
 package com.pas.nfl.dao;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.pas.dao.BaseDBDAO;
 import com.pas.exception.DAOException;
@@ -12,8 +13,6 @@ import com.pas.nfl.DBObjects.TblWeek;
 import com.pas.nfl.constants.INFLAppConstants;
 import com.pas.nfl.valueObject.Menu;
 import com.pas.nfl.valueObject.TeamSelection;
-import com.pas.util.MenuComparator;
-
 /**
  * Title: 		MenuDAO
  * Project: 	Slomkowski Financial Application
@@ -49,26 +48,26 @@ public class MenuDAO extends BaseDBDAO
 		log.debug("entering MenuDAO inquire");		
 		
 		String seasonYear = (String)info;
-		
-		List<Menu> menuList = new ArrayList<Menu>();					
-		
-		List<Menu> scoresList = menuStrutsCreateScores(seasonYear);		
+				
+		List<Menu> scoresByWeekList = menuStrutsCreateScoresByWeek(seasonYear);		
+		List<Menu> scoresByTeamList = menuStrutsCreateScoresByTeam(seasonYear);		
  		List<Menu> reportsList = menuStrutsCreateReports();
  		List<Menu> gamesList = menuStrutsCreateGames();
  		List<Menu> playoffsList = menuStrutsCreatePlayoffs();
  		List<Menu> miscList = menuStrutsCreateMisc();
  		
- 		log.debug(methodName + "combining all lists into one");
-		
- 		menuList.addAll(scoresList);
- 		menuList.addAll(reportsList);
- 		menuList.addAll(gamesList);
- 		menuList.addAll(playoffsList);
- 		menuList.addAll(miscList);
- 		
-		log.debug("have the full list, now need to sort it..");
-		
-		Collections.sort(menuList, new MenuComparator());
+ 		List<Map> menuList = new ArrayList<Map>();
+  		
+  		Map<String, List<Menu>> menuMap = new HashMap<>();
+  		
+  		menuMap.put(INFLAppConstants.MENU_SCORES_BY_WEEK, scoresByWeekList);
+  		menuMap.put(INFLAppConstants.MENU_SCORES_BY_TEAM, scoresByTeamList);
+  		menuMap.put(INFLAppConstants.MENU_REPORTS, reportsList);
+  		menuMap.put(INFLAppConstants.MENU_GAMES, gamesList);
+  		menuMap.put(INFLAppConstants.MENU_PLAYOFFS, playoffsList);
+  		menuMap.put(INFLAppConstants.MENU_MISC, miscList);
+  		
+  		menuList.add(menuMap);
 		
 		log.debug("final list size is = " + menuList.size());
 		log.debug(methodName + "out");
@@ -77,46 +76,12 @@ public class MenuDAO extends BaseDBDAO
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Menu> menuStrutsCreateScores(String seasonYear) throws DAOException
-	{		
-		
+	private List<Menu> menuStrutsCreateScoresByWeek(String seasonYear) throws DAOException
+	{			
 		List<Menu> mList = new ArrayList<Menu>();
 		
 		Menu menuDetail = new Menu();
 				
-		//top-level menu
-		menuDetail.setMenuName("Scores");
-		menuDetail.setMenuTitle("Scores");
-		menuDetail.setMenuOrder(1);
-		menuDetail.setMenuSubOrder(0);		
-		mList.add(menuDetail);
-				
-		menuDetail = new Menu();
-        menuDetail.setMenuParentName("Scores");
-		menuDetail.setMenuName("ScoresWeek");
-		menuDetail.setMenuTitle("By Week");
-		menuDetail.setMenuOrder(1);
-		menuDetail.setMenuSubOrder(1);		
-		mList.add(menuDetail);
-		
-		menuDetail = new Menu();
-        menuDetail.setMenuParentName("ScoresWeek");
-		menuDetail.setMenuName("ScoresWeekRegSeason");
-		menuDetail.setMenuTitle("Regular Season");
-		menuDetail.setMenuOrder(1);
-		menuDetail.setMenuSubOrder(2);		
-		mList.add(menuDetail);
-		
-		menuDetail = new Menu();
-        menuDetail.setMenuParentName("ScoresWeek");
-		menuDetail.setMenuName("ScoresWeekPlayoffs");
-		menuDetail.setMenuTitle("Playoffs");
-		menuDetail.setMenuOrder(1);
-		menuDetail.setMenuSubOrder(3);		
-		mList.add(menuDetail);
-		
-		//now create submenus for weeks within scores
-		
 		WeekDAO weekDAOReference;
 		
 		try
@@ -131,11 +96,6 @@ public class MenuDAO extends BaseDBDAO
 				TblWeek week = weekList.get(i);
 					
 				menuDetail = new Menu();
-				if (week.getSweekDescription() == null)
-					menuDetail.setMenuParentName("ScoresWeekRegSeason");
-				else				
-					menuDetail.setMenuParentName("ScoresWeekPlayoffs");
-				
 				menuDetail.setMenuName("ScoresWeek" + week.getIweekNumber());
 				menuDetail.setMenuTitle("Week " + week.getIweekNumber());
 				menuDetail.setMenuLocation(CONTEXT_ROOT + "/ScoresListAction.do?&operation=inquire&weekNumber=" + week.getIweekNumber());		
@@ -149,18 +109,18 @@ public class MenuDAO extends BaseDBDAO
 		catch (SystemException e) 
 		{
 			throw new DAOException(e);
-		}
+		}		
+
+		return mList;		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Menu> menuStrutsCreateScoresByTeam(String seasonYear) throws DAOException
+	{
+		List<Menu> mList = new ArrayList<Menu>();
 		
-		menuDetail = new Menu();
-        menuDetail.setMenuParentName("Scores");
-		menuDetail.setMenuName("ScoresTeam");
-		menuDetail.setMenuTitle("By Team");
-		menuDetail.setMenuOrder(1);
-		menuDetail.setMenuSubOrder(100);		
-		mList.add(menuDetail);
-		
-		//now create submenus for teams within scores
-		
+		Menu menuDetail = new Menu();
+				
 		String currentParentDivision = "";
 		
 		TeamDAO teamDAOReference;
@@ -178,22 +138,7 @@ public class MenuDAO extends BaseDBDAO
 			for (int i = 0; i < teamList.size(); i++)
 			{
 				TblTeam team = teamList.get(i);
-			
-				String currentDivision = team.getDivision().getVdivisionName();
-				
-				if (!currentDivision.equalsIgnoreCase(currentParentDivision))
-				{
-					menuDetail = new Menu();
-			        menuDetail.setMenuParentName("ScoresTeam");
-					menuDetail.setMenuName("ScoresDivision" + team.getIdivisionId());
-					menuDetail.setMenuTitle(currentDivision);
-					menuDetail.setMenuOrder(1);
-					menuDetail.setMenuSubOrder(100+i);		
-					mList.add(menuDetail);
-					
-					currentParentDivision = String.valueOf(currentDivision);
-				}
-				
+							
 				menuDetail = new Menu();
 				menuDetail.setMenuParentName("ScoresDivision" + team.getIdivisionId());
 				menuDetail.setMenuName("ScoresTeam" + team.getIteamId());
@@ -221,14 +166,6 @@ public class MenuDAO extends BaseDBDAO
 		
 		Menu menuDetail = new Menu();
 		
-		//top-level menu
-		menuDetail.setMenuName("Reports");
-		menuDetail.setMenuTitle("Reports");
-		menuDetail.setMenuOrder(2);
-		menuDetail.setMenuSubOrder(0);		
-		mList.add(menuDetail);
-		
-		menuDetail = new Menu();
 		menuDetail.setMenuParentName("Reports");
 		menuDetail.setMenuName("ReportsStandings");
 		menuDetail.setMenuTitle("Standings");
@@ -274,14 +211,6 @@ public class MenuDAO extends BaseDBDAO
 		
 		Menu menuDetail = new Menu();
 		
-		//top-level menu
-		menuDetail.setMenuName("Games");
-		menuDetail.setMenuTitle("Games");
-		menuDetail.setMenuOrder(3);
-		menuDetail.setMenuSubOrder(0);		
-		mList.add(menuDetail);
-		
-		menuDetail = new Menu();
 		menuDetail.setMenuParentName("Games");
 		menuDetail.setMenuName("GamesVCD");
 		menuDetail.setMenuTitle("View-Chg-Del");
@@ -309,14 +238,6 @@ public class MenuDAO extends BaseDBDAO
 		
 		Menu menuDetail = new Menu();
 		
-		//top-level menu
-		menuDetail.setMenuName("Playoffs");
-		menuDetail.setMenuTitle("Playoffs");
-		menuDetail.setMenuOrder(4);
-		menuDetail.setMenuSubOrder(0);
-		mList.add(menuDetail);	
-		
-		menuDetail = new Menu();
 		menuDetail.setMenuParentName("Playoffs");
 		menuDetail.setMenuName("PlayoffsInquire");
 		menuDetail.setMenuTitle("Brackets");

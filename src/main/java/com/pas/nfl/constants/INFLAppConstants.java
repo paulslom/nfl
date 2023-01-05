@@ -38,8 +38,13 @@ public interface INFLAppConstants
 	public static final String CONFERENCE_DAO = "ConferenceDAO";
 	public static final String GAMETYPE_DAO = "GameTypeDAO";
 	
-	//Menu constants
-	public static final String SF_MENUREPOSITORY="SFMenuRepository";
+	//Menu references
+	public static final String MENU_SCORES_BY_WEEK = "MenuScoresByWeek";
+	public static final String MENU_SCORES_BY_TEAM = "MenuScoresByTeam";
+	public static final String MENU_REPORTS = "MenuReports";
+	public static final String MENU_GAMES = "MenuGames";
+	public static final String MENU_PLAYOFFS = "MenuPlayoffs";
+	public static final String MENU_MISC = "MenuMisc";
 	
 	//Misc Constants       
     public static final Integer DROPDOWN_NOT_SELECTED = 0;

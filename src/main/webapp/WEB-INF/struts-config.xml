@@ -43,8 +43,42 @@
 	
 	 	<action path="/displayLoginForm"
 	 			forward="LoginDef">
-	 	</action>
+	 	</action>	 	
 	 	
+		<action path="/CommonGamesShowFormAction"
+		        type="com.pas.nfl.action.CommonGamesShowFormAction"
+				name="commonGamesSelectionForm"
+				scope="session"
+				validate="false"
+				parameter="operation">
+		    <set-property property="cancellable" value="true"/>    
+		    <forward name="success" path="CommonGamesSelectionDef"></forward>   	               
+		</action>
+		
+		<action path="/CommonGamesSelectionAction"
+		        type="com.pas.nfl.action.CommonGamesSelectionAction"
+				name="commonGamesSelectionForm"
+				scope="session"
+				validate="true"
+				parameter="operation"
+				input="CommonGamesSelectionDef">
+		    <set-property property="cancellable" value="true"/>    
+		    <forward name="success" path="/CommonGamesResultAction.do?operation=submit"></forward>
+		    <forward name="cancel" path="CommonGamesSelectionDef"></forward>
+		    <forward name="failure" path="CommonGamesSelectionDef"></forward>          	               
+		</action>
+		
+		<action path="/CommonGamesResultAction"
+		        type="com.pas.nfl.action.CommonGamesResultAction"
+				name="commonGamesSelectionForm"
+				scope="session"
+				validate="false"
+				parameter="operation">
+		    <set-property property="cancellable" value="true"/>    
+		    <forward name="success" path="CommonGamesResultDef"></forward>  
+		    <forward name="failure" path="CommonGamesResultDef"></forward>    	     	               
+		</action>
+		
 	 	<action path="/DraftOrderRulesShowFormAction"
 		       	type="com.pas.nfl.action.DraftOrderRulesShowFormAction"
 		       	name="draftOrderRulesForm"
@@ -184,39 +218,6 @@
 		    <forward name="success" path="ReportScheduleDef"></forward>    	               
 		</action>
 		
-		<action path="/CommonGamesShowFormAction"
-		        type="com.pas.nfl.action.CommonGamesShowFormAction"
-				name="commonGamesSelectionForm"
-				scope="session"
-				validate="false"
-				parameter="operation">
-		    <set-property property="cancellable" value="true"/>    
-		    <forward name="success" path="CommonGamesSelectionDef"></forward>   	               
-		</action>
-		
-		<action path="/CommonGamesSelectionAction"
-		        type="com.pas.nfl.action.CommonGamesSelectionAction"
-				name="commonGamesSelectionForm"
-				scope="session"
-				validate="true"
-				parameter="operation"
-				input="CommonGamesSelectionDef">
-		    <set-property property="cancellable" value="true"/>    
-		    <forward name="success" path="/CommonGamesResultAction.do?operation=submit"></forward>
-		    <forward name="cancel" path="CommonGamesSelectionDef"></forward>
-		    <forward name="failure" path="CommonGamesSelectionDef"></forward>          	               
-		</action>
-		
-		<action path="/CommonGamesResultAction"
-		        type="com.pas.nfl.action.CommonGamesResultAction"
-				name="commonGamesSelectionForm"
-				scope="session"
-				validate="false"
-				parameter="operation">
-		    <set-property property="cancellable" value="true"/>    
-		    <forward name="success" path="CommonGamesResultDef"></forward>  
-		    <forward name="failure" path="CommonGamesResultDef"></forward>    	     	               
-		</action>
 		
 		<action path="/ReportStandingsAction"
 		        type="com.pas.nfl.action.ReportStandingsAction"
@@ -239,7 +240,7 @@
 		    <forward name="success" path="ScoresListDef"></forward>
 		    <forward name="failure" path="ScoresListDef"></forward>        		                
 		</action>
-				
+						
 		<action path="/ScoresUpdateAction"
 		       	type="com.pas.nfl.action.ScoresUpdateAction"
 		       	name="scoresListForm"
@@ -299,11 +300,6 @@
 	    <set-property property="definitions-parser-validate" value="true" />
 	</plug-in>
 	
-	
-	<plug-in className="net.sf.navigator.menu.MenuPlugIn">
-        <set-property property="menuConfig" value="/WEB-INF/menu-config.xml"/> 
-    </plug-in>
-        
 	<plug-in className="com.pas.struts.InitPlugIn">
 		<set-property property="propertyFiles" value="dao_def.xml|business_def.xml|action_def.xml|entity_def.xml"/>
 	</plug-in>

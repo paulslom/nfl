@@ -551,3 +551,84 @@ nflimg {
 	font-weight: bold; 
 	color:'#000000';
 }
+.suggest_link
+{
+	background-color: #FFFFFF;
+	padding: 2px 6px 2px 6px;
+}
+.suggest_link_over
+{
+	background-color: #3366CC;
+	padding: 2px 6px 2px 6px;
+}
+#search_suggest
+{
+	position: absolute; 
+	background-color: #FFFFFF; 
+	text-align: left; 
+	border: 1px solid #000000;			
+}	
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+  margin: 0 auto;
+  font-family: "Orbitron", sans-serif;
+}
+
+ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.5em 0;
+  list-style: none;
+}
+
+.menu-item {
+  background: white;
+  padding: 1em 0.5em;
+  position: relative;
+  border-bottom: 5px solid #999;
+  margin: 0 0.1em;
+  transition: border-bottom 0.23s ease-in-out, background 0.23s linear;
+  cursor: pointer;
+  min-width: 8em;
+  text-align: center;
+}
+.menu-item:hover .sub-menu, .menu-item:hover .sub-menu:hover, .menu-item:focus-within .sub-menu, .menu-item:focus-within .sub-menu:hover {
+  visibility: visible;
+  opacity: 1;
+  display: flex;
+}
+
+.sub-menu {
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  left: 0;
+  margin-top: 1em;
+  visibility: hidden;
+  display: none;
+  opacity: 0;
+}
+.sub-menu .menu-item {
+  margin: 0.1em 0;
+  line-height: 115%;
+  padding-bottom: 3px;
+  padding-top: 3px;
+  width: 10em;
+  text-align: center;
+  z-index: 2;
+}
+
+.ajaxVisualFeedback {
+    width: 16px;
+    height: 16px;
+    background-image: url('../images/indicator.gif');
+    background-repeat: no-repeat;
+    float: right;
+}	
