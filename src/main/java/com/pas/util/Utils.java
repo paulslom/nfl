@@ -13,6 +13,7 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 public class Utils 
 {
 	private static Logger log = LogManager.getLogger(Utils.class);	
+	public static String MY_TIME_ZONE = "America/New_York";
 	
 	public static MysqlDataSource getDatasourceProperties()
 	{

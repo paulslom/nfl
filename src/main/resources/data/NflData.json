@@ -1,0 +1,155 @@
+[
+{
+"nfl":
+{"nflID": "e200ecc2-700a-424b-abe6-d2b544c3bd33",
+
+"seasons":
+[
+{
+"iSeasonID":1,
+"cYear": "2004",
+"vSuperBowl": "XXXIX",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":5,
+"cYear": "2005",
+"vSuperBowl": "XL",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":9,
+"cYear": "2006",
+"vSuperBowl": "XLI",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":10,
+"cYear": "2007",
+"vSuperBowl": "XLII",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":14,
+"cYear": "2008",
+"vSuperBowl": "XLIII",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":15,
+"cYear": "2009",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":16,
+"cYear": "2010",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":17,
+"cYear": "2011",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":18,
+"cYear": "2012",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":19,
+"cYear": "2013",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":20,
+"cYear": "2014",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":21,
+"cYear": "2015",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":22,
+"cYear": "2016",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":23,
+"cYear": "2017",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":24,
+"cYear": "2018",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":25,
+"cYear": "2019",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":6,
+"iPlayoffByesByConf":2
+},
+{
+"iSeasonID":26,
+"cYear": "2020",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":7,
+"iPlayoffByesByConf":1
+},
+{
+"iSeasonID":28,
+"cYear": "2021",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":7,
+"iPlayoffByesByConf":1
+},
+{
+"iSeasonID":29,
+"cYear": "2022",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":7,
+"iPlayoffByesByConf":1
+},
+{
+"iSeasonID":30,
+"cYear": "2023",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":7,
+"iPlayoffByesByConf":1
+},
+{
+"iSeasonID":31,
+"cYear": "2024",
+"vSuperBowl": "null",
+"iConferencePlayoffTeams":7,
+"iPlayoffByesByConf":1
+}]
+}}]
