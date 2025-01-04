@@ -12,8 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.pas.beans.NflSeason;
-import com.pas.nfl.DBObjects.TblSeason;
 import com.pas.nfl.dao.SeasonRowMapper;
+import com.pas.nfl.dao.TblSeason;
 
 import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;

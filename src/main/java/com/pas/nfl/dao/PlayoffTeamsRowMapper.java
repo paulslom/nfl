@@ -6,8 +6,6 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.pas.nfl.DBObjects.TblPlayoffTeams;
-
 public class PlayoffTeamsRowMapper implements RowMapper<TblPlayoffTeams>, Serializable 
 {
     private static final long serialVersionUID = 1L;

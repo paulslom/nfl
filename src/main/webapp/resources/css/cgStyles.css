@@ -1,0 +1,98 @@
+.activeMenuSelection {
+    font: bold 14px "Verdana";
+    color:  #000000;
+    background-color : #c7c3c3;
+}
+
+.resultGreen {
+	white-space: pre-line;
+    background-color: #32cd32;
+    color:  #000000;
+    font-weight: normal;
+}
+.resultRed {
+	white-space: pre-line;
+    background-color:  #dc143c;
+    color:  #000000;
+    font-weight: normal;
+}
+.resultYellow {
+	white-space: pre-line;
+    background-color:  #fcc200;
+    color:  #000000;
+    font-weight: bold;
+}
+
+.menuGreen .ui-selectonemenu-label { 
+    background: #32cd32;
+}
+.menuRed .ui-selectonemenu-label { 
+    background: #dc143c;
+}
+.menuYellow .ui-selectonemenu-label { 
+    background: #fcc200 ;
+}
+
+.requiredStyle  {
+    color: red !important;
+}
+    
+body.custom-background 
+{ 
+	background-color: #6495ed;
+}
+.sectionTitle {
+	font: bold 32px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.sectionSubTitle {
+	font: bold 22px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.englishSpanishStyle {
+	font: bold 8px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.pageSectionTitle {
+	font: bold 17px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.pageSectionSubTitle {
+	font: bold 14px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.dataTableStyle {
+	font: bold 14px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	text-decoration: none;
+	color:  #000000;
+}
+
+.ui-menubar	{
+	font: bold 17px "Verdana";
+	vertical-align: top;
+	text-align: left;
+	background: #fcc200;
+}
+

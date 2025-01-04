@@ -6,8 +6,6 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.pas.nfl.DBObjects.TblSeason;
-
 public class SeasonRowMapper implements RowMapper<TblSeason>, Serializable 
 {
     private static final long serialVersionUID = 1L;

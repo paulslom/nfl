@@ -17,6 +17,7 @@ public class NflSeason implements Serializable
 	
 	private Integer iSeasonID;
     private String cYear;
+    private Integer intYear;
     private String vSuperBowl;
     private Integer iConferencePlayoffTeams;
     private Integer iPlayoffByesByConf;
@@ -51,6 +52,13 @@ public class NflSeason implements Serializable
 	}
 	public void setiPlayoffByesByConf(Integer iPlayoffByesByConf) {
 		this.iPlayoffByesByConf = iPlayoffByesByConf;
+	}
+	public Integer getIntYear() 
+	{		
+		return Integer.parseInt(cYear);
+	}
+	public void setIntYear(Integer intYear) {
+		this.intYear = intYear;
 	}
  	
 	

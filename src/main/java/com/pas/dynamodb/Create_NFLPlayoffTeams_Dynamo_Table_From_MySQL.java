@@ -14,9 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.pas.beans.NflPlayoffTeam;
 import com.pas.beans.NflSeason;
-
-import com.pas.nfl.DBObjects.TblPlayoffTeams;
 import com.pas.nfl.dao.PlayoffTeamsRowMapper;
+import com.pas.nfl.dao.TblPlayoffTeams;
 
 import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;

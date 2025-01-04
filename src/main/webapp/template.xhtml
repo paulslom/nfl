@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html lang="en"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">    
+    
+    <h:head  id="templateHeadId">
+    
+      <meta http-equiv="pragma" content="no-cache"></meta>
+	  <meta http-equiv="cache-control" content="no-cache"></meta>
+	  <meta http-equiv="expires" content="0"></meta>
+	
+	  <h:outputStylesheet name="css/cgStyles.css"/> 
+	 		
+    </h:head>  
+  		   
+    <h:body class="custom-background">
+    
+		<f:view>
+		
+			<f:loadBundle var="bundleNfl" basename="ApplicationProperties" />  	 
+	 		
+	 		 <table style="table-layout: fixed; width:100%;">
+	 		 
+        		<tr>
+        			<td>
+    		 			<ui:insert name="header">
+				 			<ui:include src="/menubar.xhtml"></ui:include>
+				 		</ui:insert>
+				 	</td>
+			 	</tr>
+			 	
+			 	<tr>
+        			<td>
+    		 			<ui:insert name="content">
+						 	<ui:include src="/main.xhtml"></ui:include>
+						 </ui:insert>
+				 	</td>
+			 	</tr>
+			 	
+			 </table>
+						 
+		</f:view>	 
+		        
+    </h:body>
+    
+</html>
