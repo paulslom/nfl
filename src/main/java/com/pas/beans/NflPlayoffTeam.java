@@ -22,7 +22,9 @@ public class NflPlayoffTeam implements Serializable
     private Integer iSeed;
     private Boolean bBye;
     
-	public Integer getIseasonId() {
+	public Integer getIseasonId() 
+	{
+		logger.debug("returning iseasonId");
 		return iseasonId;
 	}
 	public void setIseasonId(Integer iseasonId) {

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,11 +12,10 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.pas.beans.NflGame;
-import com.pas.beans.NflMain;
 import com.pas.dynamodb.DynamoClients;
+import com.pas.util.GameComparator;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -29,18 +27,16 @@ public class NflGameDAO implements Serializable
 	private static Logger logger = LogManager.getLogger(NflGameDAO.class);
 	
 	private Map<Integer,NflGame> fullNflGamesMap = new HashMap<>(); 
+	private Map<Integer,List<NflGame>> gamesMapBySeason = new HashMap<>(); 
 	private List<NflGame> fullNflGameList = new ArrayList<>();
+	private List<NflGame> seasonGamesList = new ArrayList<>();
 	
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<NflGame> nflGamesTable;
 	private static final String AWS_TABLE_NAME = "nflgames";
 	
-	@Autowired private final NflMain nflmain;
-	
-	public NflGameDAO(DynamoClients dynamoClients2, NflMain nflmain) 
-	{
-		this.nflmain = nflmain;
-		
+	public NflGameDAO(DynamoClients dynamoClients2) 
+	{		
 	   try 
 	   {
 	       dynamoClients = dynamoClients2;
@@ -117,13 +113,36 @@ public class NflGameDAO implements Serializable
 		
 		this.setFullNflGamesMap(this.getFullNflGameList().stream().collect(Collectors.toMap(NflGame::getIgameId, ply -> ply)));
 		
-		Collections.sort(this.getFullNflGameList(), new Comparator<NflGame>() 
-		{
-		   public int compare(NflGame o1, NflGame o2) 
-		   {
-		      return o1.getIgameId().compareTo(o2.getIgameId());
-		   }
-		});
+		Collections.sort(this.getFullNflGameList(), new GameComparator());
+		
+		int maxSeasonID = 0;
+		
+		for (int i = 0; i < this.getFullNflGameList().size(); i++) 
+		{			
+			NflGame nflgame = this.getFullNflGameList().get(i);
+			int currentSeasonID = nflgame.getiSeasonId();
+			logger.debug("looping game number: " + i + " for seasonid: " + currentSeasonID);
+			
+			if (this.getGamesMapBySeason().containsKey(currentSeasonID))
+			{
+				List<NflGame> tempGameList = this.getGamesMapBySeason().get(currentSeasonID);
+				tempGameList.add(nflgame);
+				this.getGamesMapBySeason().replace(currentSeasonID, tempGameList);
+			}
+			else
+			{
+				List<NflGame> tempGameList = new ArrayList<>();
+				tempGameList.add(nflgame);
+				this.getGamesMapBySeason().put(currentSeasonID, tempGameList);
+				if (currentSeasonID > maxSeasonID)
+				{
+					maxSeasonID = currentSeasonID;
+				}
+			}
+		}
+		
+		//establish this season's games.  Default to max season id
+		this.setSeasonGamesList(this.getGamesMapBySeason().get(maxSeasonID));
 	}
 	
 	private void refreshListsAndMaps(String function, NflGame nflgame)
@@ -146,14 +165,7 @@ public class NflGameDAO implements Serializable
 		Collection<NflGame> values = this.getFullNflGamesMap().values();
 		this.setFullNflGameList(new ArrayList<>(values));
 		
-		Collections.sort(this.getFullNflGameList(), new Comparator<NflGame>() 
-		{
-		   public int compare(NflGame o1, NflGame o2) 
-		   {
-		      return o1.getIgameId().compareTo(o2.getIgameId());
-		   }
-		});
-				
+		Collections.sort(this.getFullNflGameList(), new GameComparator());				
 	}
 	
 	public List<NflGame> getFullNflGameList() 
@@ -172,6 +184,22 @@ public class NflGameDAO implements Serializable
 
 	public void setFullNflGamesMap(Map<Integer, NflGame> fullNflGamesMap) {
 		this.fullNflGamesMap = fullNflGamesMap;
+	}
+
+	public Map<Integer, List<NflGame>> getGamesMapBySeason() {
+		return gamesMapBySeason;
+	}
+
+	public void setGamesMapBySeason(Map<Integer, List<NflGame>> gamesMapBySeason) {
+		this.gamesMapBySeason = gamesMapBySeason;
+	}
+
+	public List<NflGame> getSeasonGamesList() {
+		return seasonGamesList;
+	}
+
+	public void setSeasonGamesList(List<NflGame> seasonGamesList) {
+		this.seasonGamesList = seasonGamesList;
 	}
 
 

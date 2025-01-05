@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.pas.pojo.Decade;
+import com.pas.pojo.OuterWeek;
 
 import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpSession;
@@ -68,14 +69,16 @@ public class Utils
 	}
 	
 	public static String getLoggedInUserName()
-	{
+	{		
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
-		String currentCamGroupUser = (String) session.getAttribute("currentUser");
+		String currentUser = (String) session.getAttribute("currentUser");
 		
-		currentCamGroupUser = SecurityContextHolder.getContext().getAuthentication().getName();
+		currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 		
-	    return currentCamGroupUser == null ? null : currentCamGroupUser.toLowerCase().trim();
+		logger.info("current logged in user is: " + currentUser);
+		
+	    return currentUser == null ? null : currentUser.toLowerCase().trim();
 	}	
 
 	public static String getDayofWeekString(Date date) 
@@ -144,6 +147,49 @@ public class Utils
 		decadesList.add(decade);
 		*/
 		return decadesList;
+	}
+	
+	public static List<OuterWeek> getOuterWeeksList()
+	{
+		List<OuterWeek> outerWeeksList = new ArrayList<>();
+		
+		OuterWeek outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Reg Season 1-9");
+		outerWeek.setWeekNumberStart(1);
+		outerWeek.setWeekNumberEnd(9);
+		outerWeeksList.add(outerWeek);
+		
+		outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Reg Season 10-18");
+		outerWeek.setWeekNumberStart(10);
+		outerWeek.setWeekNumberEnd(18);
+		outerWeeksList.add(outerWeek);
+		
+		outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Wild Card Playoff Round");
+		outerWeek.setWeekNumberStart(null);
+		outerWeek.setWeekNumberEnd(null);
+		outerWeeksList.add(outerWeek);
+		
+		outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Divisional Playoff Round");
+		outerWeek.setWeekNumberStart(null);
+		outerWeek.setWeekNumberEnd(null);
+		outerWeeksList.add(outerWeek);
+		
+		outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Conference Championships");
+		outerWeek.setWeekNumberStart(null);
+		outerWeek.setWeekNumberEnd(null);
+		outerWeeksList.add(outerWeek);
+		
+		outerWeek = new OuterWeek();
+		outerWeek.setOuterWeekDescription("Super Bowl");
+		outerWeek.setWeekNumberStart(null);
+		outerWeek.setWeekNumberEnd(null);
+		outerWeeksList.add(outerWeek);
+		
+		return outerWeeksList;
 	}
 	
 			

@@ -1,9 +1,13 @@
 package com.pas.beans;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.pas.dynamodb.DateToStringConverter;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -20,8 +24,10 @@ public class NflGame implements Serializable
     private String dgameDateTime;
     private Integer iawayTeamID;
     private String cawayteamCityAbbr;
+    private String awayteamName;
     private Integer ihomeTeamID;
     private String chometeamCityAbbr;
+    private String hometeamName;
     private Integer iawayTeamScore;
     private Integer ihomeTeamScore;
     private Integer iweekId;
@@ -37,8 +43,15 @@ public class NflGame implements Serializable
     private String gameDateOnly;
     private String gameTimeOnly;
     
+    public String toString()
+    {
+    	return "seasonid: " + iSeasonId + " game date: " + dgameDateTime + " " + cawayteamCityAbbr + " @ " + chometeamCityAbbr;
+    }
+    
     @DynamoDbPartitionKey
-	public Integer getIgameId() {
+	public Integer getIgameId() 
+    {
+    	logger.debug("returning igameid");
 		return igameId;
 	}
 	public void setIgameId(Integer igameId) {
@@ -130,23 +143,56 @@ public class NflGame implements Serializable
 	public void setSweekDescription(String sweekDescription) {
 		this.sweekDescription = sweekDescription;
 	}
-	public String getGameDayOfWeek() {
+	
+	public String getGameDayOfWeek() 
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE");
+		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
+		this.setGameDayOfWeek(sdf.format(gameDate));
 		return gameDayOfWeek;
 	}
-	public void setGameDayOfWeek(String gameDayOfWeek) {
+	public void setGameDayOfWeek(String gameDayOfWeek) 
+	{		
 		this.gameDayOfWeek = gameDayOfWeek;
 	}
-	public String getGameDateOnly() {
+	public String getGameDateOnly() 
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
+		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
+		this.setGameDateOnly(sdf.format(gameDate));
 		return gameDateOnly;
-	}
-	public void setGameDateOnly(String gameDateOnly) {
+	}	
+	public void setGameDateOnly(String gameDateOnly) 
+	{		
 		this.gameDateOnly = gameDateOnly;
 	}
-	public String getGameTimeOnly() {
+	
+	public String getGameTimeOnly() 
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
+		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
+		this.setGameTimeOnly(sdf.format(gameDate));
 		return gameTimeOnly;
 	}
-	public void setGameTimeOnly(String gameTimeOnly) {
+	public void setGameTimeOnly(String gameTimeOnly) 
+	{
 		this.gameTimeOnly = gameTimeOnly;
-	}  
+	}
+
+	public String getAwayteamName() {
+		return awayteamName;
+	}
+
+	public void setAwayteamName(String awayteamName) {
+		this.awayteamName = awayteamName;
+	}
+
+	public String getHometeamName() {
+		return hometeamName;
+	}
+
+	public void setHometeamName(String hometeamName) {
+		this.hometeamName = hometeamName;
+	}
 	
 }

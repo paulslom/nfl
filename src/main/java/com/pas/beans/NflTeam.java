@@ -29,7 +29,9 @@ public class NflTeam implements Serializable
     private String vConferenceName;
     
     @DynamoDbPartitionKey
-	public Integer getiTeamID() {
+	public Integer getiTeamID() 
+    {
+    	logger.debug("returning iTeamID");
 		return iTeamID;
 	}
 	public void setiTeamID(Integer iTeamID) {

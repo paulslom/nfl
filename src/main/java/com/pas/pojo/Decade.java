@@ -1,6 +1,6 @@
 package com.pas.pojo;
 
-public class Decade 
+public class Decade
 {
 	private String decadeDescription;
 	private Integer decadeStart;

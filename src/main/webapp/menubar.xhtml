@@ -73,10 +73,30 @@
 			    													    				
 						</p:submenu>
 						
-						<p:submenu label="Scores By Week">						
-							<c:forEach items="#{pc_NflMain.fullNflSeasonList}" var="season">
-						        <p:menuitem value="#{season.cYear}" url="#{request.contextPath}/main.xhtml"/>
-			    			</c:forEach>			    				
+						<p:submenu label="Scores By Week">
+												
+							<c:forEach items="#{pc_NflMain.outerWeeksList}" var="weekOuter">
+							
+						        <p:submenu label="#{weekOuter.outerWeekDescription}">
+						        
+						        	<c:forEach items="#{pc_NflMain.currentWeekFirstHalfList}" var="firsthalfweek">
+										<p:menuitem value="#{firsthalfweek.weekNumber}" 
+														rendered="#{firsthalfweek.weekNumber ge weekOuter.weekNumberStart and firsthalfweek.weekNumber le weekOuter.weekNumberEnd}"
+														actionListener="#{pc_NflMain.selectGameScoresWeek}">
+										</p:menuitem>
+									</c:forEach>
+									
+									<c:forEach items="#{pc_NflMain.currentWeekSecondHalfList}" var="secondhalfweek">
+										<p:menuitem value="#{secondhalfweek.weekNumber}" 
+														rendered="#{secondhalfweek.weekNumber ge weekOuter.weekNumberStart and secondhalfweek.weekNumber le weekOuter.weekNumberEnd}"
+														actionListener="#{pc_NflMain.selectGameScoresWeek}">
+										</p:menuitem>
+									</c:forEach>
+									
+						        </p:submenu>
+						        
+			    			</c:forEach>
+			    						    				
 						</p:submenu>
 						
 						<p:submenu label="Scores By Team">
@@ -93,7 +113,7 @@
 						</p:submenu>
 						
 						<p:submenu label="Games">
-							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gameList.xhtml"/>	
+							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml"/>	
 							<p:menuitem value="Add" url="#{request.contextPath}/addgame.xhtml"/>	
 						</p:submenu>
 						
@@ -103,7 +123,7 @@
 						</p:submenu>
 						
 						<p:submenu label="Miscellaneous">
-							<p:menuitem value="Tie Breaker Rules" url="#{request.contextPath}/tieBreakerRules.xhtml"/>
+							<p:menuitem value="Tie Breaker Rules" url="https://www.nfl.com/standings/tie-breaking-procedures"/>
 							<p:menuitem value="Draft Order Rules" url="#{request.contextPath}/draftOrderRules.xhtml"/>	
 							<p:menuitem value="Clone last season" url="#{request.contextPath}/cloneLastSeason.xhtml"/>	
 						</p:submenu>

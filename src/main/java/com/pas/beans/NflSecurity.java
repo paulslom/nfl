@@ -4,11 +4,6 @@ import java.io.Serializable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-
-import com.pas.dynamodb.DynamoClients;
-import com.pas.dynamodb.DynamoUtil;
-import com.pas.nfl.dao.NflSecurityDAO;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -36,6 +31,7 @@ public class NflSecurity implements Serializable
 	@DynamoDbPartitionKey
 	public String getUserName() 
 	{
+		logger.debug("returning username");
 		return userName;
 	}
 	

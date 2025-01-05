@@ -23,7 +23,9 @@ public class NflSeason implements Serializable
     private Integer iPlayoffByesByConf;
     
     @DynamoDbPartitionKey
-	public Integer getiSeasonID() {
+	public Integer getiSeasonID() 
+	{
+    	logger.debug("returning iSeasonID");
 		return iSeasonID;
 	}
 	public void setiSeasonID(Integer iSeasonID) {
@@ -54,8 +56,9 @@ public class NflSeason implements Serializable
 		this.iPlayoffByesByConf = iPlayoffByesByConf;
 	}
 	public Integer getIntYear() 
-	{		
-		return Integer.parseInt(cYear);
+	{
+		intYear = Integer.parseInt(cYear);
+		return intYear;
 	}
 	public void setIntYear(Integer intYear) {
 		this.intYear = intYear;

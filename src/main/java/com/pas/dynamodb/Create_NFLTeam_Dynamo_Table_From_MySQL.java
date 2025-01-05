@@ -145,8 +145,8 @@ public class Create_NFLTeam_Dynamo_Table_From_MySQL
 		
 	    try 
 	    {
-	    	
-	    	InputStream stream = new FileInputStream(new File("C:\\EclipseProjects\\NFLWS\\Servers\\Tomcat v9.0 Server at localhost-config/catalina.properties"));
+	    	//Use the prior project for these properties - they don't exist in this one
+	    	InputStream stream = new FileInputStream(new File("C:\\EclipseProjects\\NFLWS-MySQL\\Servers\\Tomcat v9.0 Server at localhost-config/catalina.properties"));
 	    	prop.load(stream);   		
 		
 	    	ds = new MysqlDataSource();

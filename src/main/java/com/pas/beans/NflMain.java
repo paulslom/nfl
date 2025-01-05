@@ -1,6 +1,9 @@
 package com.pas.beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +20,8 @@ import com.pas.nfl.dao.NflPlayoffTeamDAO;
 import com.pas.nfl.dao.NflSeasonDAO;
 import com.pas.nfl.dao.NflTeamDAO;
 import com.pas.pojo.Decade;
+import com.pas.pojo.InnerWeek;
+import com.pas.pojo.OuterWeek;
 import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
@@ -37,6 +42,10 @@ public class NflMain implements Serializable
 	public static String YELLOW_STYLECLASS = "menuYellow";
 	
 	private String siteTitle;	
+	
+	private List<InnerWeek> currentWeekList = new ArrayList<>();
+	private List<InnerWeek> currentWeekFirstHalfList = new ArrayList<>();
+	private List<InnerWeek> currentWeekSecondHalfList = new ArrayList<>();
 	
 	private String currentSeasonDisplay;
 	private NflSeason currentSelectedSeason;
@@ -63,20 +72,24 @@ public class NflMain implements Serializable
 				loadNflTeams(dynamoClients);
 				loadNflGames(dynamoClients);
 				loadNflPlayoffTeams(dynamoClients);
+				
+				this.setCurrentWeekList(calculateCurrentWeekList());
+				breakUpWeekLists();
 			}
 		} 
 		catch (Exception e) 
 		{
 			logger.error(e.getMessage(), e);
 		}		
-	}				
-	
+	}
+
 	private void loadNflSeasons(DynamoClients dynamoClients)  throws Exception
 	{
 		logger.info("entering loadNflSeasons");
 		nflSeasonDAO = new NflSeasonDAO(dynamoClients, this);
 		nflSeasonDAO.readNflSeasonsFromDB();
 		this.setCurrentSeasonDisplay("Working on Season: " + nflSeasonDAO.getMaxSeason().getcYear());
+		this.setCurrentSelectedSeason(nflSeasonDAO.getMaxSeason());
 		logger.info("Nfl Seasons read in. List size = " + nflSeasonDAO.getFullNflSeasonList().size());		
     }
 	
@@ -91,7 +104,7 @@ public class NflMain implements Serializable
 	private void loadNflGames(DynamoClients dynamoClients)  throws Exception
 	{
 		logger.info("entering loadNflGames");
-		nflGameDAO = new NflGameDAO(dynamoClients, this);
+		nflGameDAO = new NflGameDAO(dynamoClients);
 		nflGameDAO.readNflGamesFromDB();
 		logger.info("Nfl Games read in. List size = " + nflGameDAO.getFullNflGameList().size());		
     }
@@ -114,6 +127,7 @@ public class NflMain implements Serializable
             String seasonYear = ((String) mi.getValue());
             this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
             this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
+            this.setCurrentWeekList(calculateCurrentWeekList());            
         } 
         catch (Exception e) 
         {
@@ -121,7 +135,51 @@ public class NflMain implements Serializable
         }
        
     }
+	
+	public void selectGameScoresWeek(ActionEvent event) 
+	{
+		logger.info("game scores week selected from menu");
 		
+		try 
+        {
+            UIMenuItem mi = (UIMenuItem) event.getSource();
+            Integer weekNumber = (Integer) mi.getValue();
+            logger.info("week number picked: " + weekNumber);
+            
+            //Armed with week number and currentselectedseason we should be fine to populate a list of this week's games
+        } 
+        catch (Exception e) 
+        {
+            logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
+        }
+	}
+	
+	private List<InnerWeek> calculateCurrentWeekList() 
+	{		
+		List<InnerWeek> returnList = new ArrayList<>();
+		List<NflGame> thisSeasonsGamesList = nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
+		
+		//we need a list of unique weeks for this season.  Have the key be the week number, and the value be an InnerWeek.  Then we can stream to a list from the map later.
+		Map<Integer, InnerWeek> tempMap = new HashMap<>();
+		
+		for (int i = 0; i < thisSeasonsGamesList.size(); i++) 
+		{
+			NflGame nflgame = thisSeasonsGamesList.get(i);
+			if (!tempMap.containsKey(nflgame.getIweekNumber()))
+			{
+				InnerWeek innerweek = new InnerWeek();
+				innerweek.setWeekId(nflgame.getIweekId());
+				innerweek.setWeekNumber(nflgame.getIweekNumber());
+				tempMap.put(nflgame.getIweekNumber(), innerweek);
+			}
+		}
+		
+		Collection<InnerWeek> values = tempMap.values();
+		returnList = new ArrayList<>(values);
+		
+		return returnList;
+	}
+	
 	public String getSignedOnUserName() 
 	{
 		String username = "";
@@ -187,6 +245,11 @@ public class NflMain implements Serializable
 		this.nflSeasonDAO = nflSeasonDAO;
 	}
 
+	public List<NflGame> getSeasonGamesList()
+	{
+		return nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
+	}
+	
 	public List<NflSeason> getFullNflSeasonList() 
 	{
 		return nflSeasonDAO.getFullNflSeasonList();
@@ -227,6 +290,11 @@ public class NflMain implements Serializable
 		return Utils.getDecadesList();
 	}
 
+	public List<OuterWeek> getOuterWeeksList()
+	{
+		return Utils.getOuterWeeksList();
+	}
+	
 	public String getCurrentSeasonDisplay() {
 		return currentSeasonDisplay;
 	}
@@ -241,6 +309,58 @@ public class NflMain implements Serializable
 
 	public void setCurrentSelectedSeason(NflSeason currentSelectedSeason) {
 		this.currentSelectedSeason = currentSelectedSeason;
+	}
+
+	public List<InnerWeek> getCurrentWeekList() {
+		return currentWeekList;
+	}
+
+	public void setCurrentWeekList(List<InnerWeek> currentWeekList) {
+		this.currentWeekList = currentWeekList;
+	}
+
+	public List<InnerWeek> getCurrentWeekFirstHalfList() 
+	{		
+		return currentWeekFirstHalfList;
+	}
+
+	public void setCurrentWeekFirstHalfList(List<InnerWeek> currentWeekFirstHalfList) {
+		this.currentWeekFirstHalfList = currentWeekFirstHalfList;
+	}
+
+	private void breakUpWeekLists()
+	{
+		List<InnerWeek> tempList1 = new ArrayList<>();
+		for (int i = 0; i < this.getCurrentWeekList().size(); i++) 
+		{
+			InnerWeek innerweek = this.getCurrentWeekList().get(i);
+			if (innerweek.getWeekNumber() <= 9)
+			{
+				tempList1.add(innerweek);
+			}
+		}
+		setCurrentWeekFirstHalfList(tempList1);
+		
+		List<InnerWeek> tempList2 = new ArrayList<>();
+		for (int i = 0; i < this.getCurrentWeekList().size(); i++) 
+		{
+			InnerWeek innerweek = this.getCurrentWeekList().get(i);
+			if (innerweek.getWeekNumber() >= 10)
+			{
+				tempList2.add(innerweek);
+			}
+		}
+		setCurrentWeekSecondHalfList(tempList2);
+	}
+	
+	public List<InnerWeek> getCurrentWeekSecondHalfList() 
+	{		
+		return currentWeekSecondHalfList;
+	}
+
+	public void setCurrentWeekSecondHalfList(List<InnerWeek> currentWeekSecondHalfList) 
+	{
+		this.currentWeekSecondHalfList = currentWeekSecondHalfList;
 	}
 		
 }

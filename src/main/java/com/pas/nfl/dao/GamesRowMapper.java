@@ -38,6 +38,9 @@ public class GamesRowMapper implements RowMapper<NflGame>, Serializable
 		game.setIgameTypeId(rs.getInt("iGameTypeID"));
 		game.setIhomeTeamID(rs.getInt("iHomeTeamID"));
 		
+		game.setAwayteamName(rs.getString("awayteamName"));
+		game.setHometeamName(rs.getString("hometeamName"));
+		
 		Integer homeScore = rs.getInt("iHomeTeamScore");
 		if (rs.wasNull())
 		{

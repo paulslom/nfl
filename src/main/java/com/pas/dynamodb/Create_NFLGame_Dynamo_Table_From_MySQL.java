@@ -46,7 +46,7 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
          }
     	 catch (Exception e)
     	 {
-    		 logger.error("Exception in Create_All_Dynamo_Tables " + e.getMessage(), e);
+    		 logger.error("Exception in Create_NFLGame_Dynamo_Table_From_MySQL " + e.getMessage(), e);
     	 }
 		System.exit(1);
 	}
@@ -58,9 +58,11 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
     	String sql = " select game.iGameID, game.iWeekID, game.dGameDateTime, game.iAwayTeamID, game.iHomeTeamID,"
     			+ "	game.iAwayTeamScore, game.iHomeTeamScore, game.iGameTypeID,"
     			+ "    gametype.sGameTypeDesc, gametype.iPlayoffRound,"
+    			+ " CONCAT(awayteam.vTeamCity,' ',awayteam.vTeamNickname) as awayteamName,"
+    			+ " CONCAT(hometeam.vTeamCity,' ',hometeam.vTeamNickname) as hometeamName,"
     			+ "    hometeam.cTeamCityAbbr as homeTeamAbbr, awayteam.cTeamCityAbbr as awayTeamAbbr,"
     			+ "    week.iSeasonID, week.iWeekNumber, week.sWeekDescription"
-    			+ "  from tblgame game inner join tblweek week on game.iWeekID = game.iWeekID "
+    			+ "  from tblgame game inner join tblweek week on game.iWeekID = week.iWeekID "
     			+ "     inner join tblgametype gametype on game.iGameTypeID = gametype.iGameTypeID"
     			+ "     inner join tblteam hometeam on game.iHomeTeamID = hometeam.iTeamID"
     			+ "     inner join tblteam awayteam on game.iAwayTeamID = awayteam.iTeamID"
@@ -82,7 +84,7 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
         }
         
         // Create a table in DynamoDB Local
-        DynamoDbTable<NflGame> teamTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
+        DynamoDbTable<NflGame> gameTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
 
         // Insert data into the table
     	logger.info("Inserting data into the table:" + AWS_TABLE_NAME);
@@ -96,7 +98,7 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
         	for (int i = 0; i < gamesList.size(); i++) 
         	{
         		NflGame nflGame = gamesList.get(i);
-				teamTable.putItem(nflGame); 
+				gameTable.putItem(nflGame); 
 			}           
         }        
 	}
@@ -150,8 +152,8 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
 		
 	    try 
 	    {
-	    	
-	    	InputStream stream = new FileInputStream(new File("C:\\EclipseProjects\\NFLWS\\Servers\\Tomcat v9.0 Server at localhost-config/catalina.properties"));
+	    	//Use the prior project for these properties - they don't exist in this one
+	    	InputStream stream = new FileInputStream(new File("C:\\EclipseProjects\\NFLWS-MySQL\\Servers\\Tomcat v9.0 Server at localhost-config/catalina.properties"));
 	    	prop.load(stream);   		
 		
 	    	ds = new MysqlDataSource();
