@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.pas.beans.NflMain;
 import com.pas.beans.NflSeason;
 import com.pas.dynamodb.DynamoClients;
 
@@ -41,12 +39,8 @@ public class NflSeasonDAO implements Serializable
 	private static DynamoDbTable<NflSeason> nflSeasonsTable;
 	private static final String AWS_TABLE_NAME = "nflseasons";
 	
-	@Autowired private final NflMain nflmain;
-	
-	public NflSeasonDAO(DynamoClients dynamoClients2, NflMain nflmain) 
+	public NflSeasonDAO(DynamoClients dynamoClients2) 
 	{
-		this.nflmain = nflmain;
-		
 	   try 
 	   {
 	       dynamoClients = dynamoClients2;

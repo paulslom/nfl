@@ -114,7 +114,9 @@
 						
 						<p:submenu label="Games">
 							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml"/>	
-							<p:menuitem value="Add" url="#{request.contextPath}/addgame.xhtml"/>	
+							<p:menuitem value="Add" actionListener="#{pc_NflGame.selectGameforAcid}">
+								<f:param name="operation" value="Add" />
+							</p:menuitem>
 						</p:submenu>
 						
 						<p:submenu label="Playoffs">

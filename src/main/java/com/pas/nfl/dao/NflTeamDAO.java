@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.pas.beans.NflMain;
 import com.pas.beans.NflTeam;
 import com.pas.dynamodb.DynamoClients;
 
@@ -34,13 +32,9 @@ public class NflTeamDAO implements Serializable
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<NflTeam> nflTeamsTable;
 	private static final String AWS_TABLE_NAME = "nflteams";
-	
-	@Autowired private final NflMain nflmain;
-	
-	public NflTeamDAO(DynamoClients dynamoClients2, NflMain nflmain) 
-	{
-		this.nflmain = nflmain;
 		
+	public NflTeamDAO(DynamoClients dynamoClients2) 
+	{
 	   try 
 	   {
 	       dynamoClients = dynamoClients2;
@@ -109,8 +103,9 @@ public class NflTeamDAO implements Serializable
 		
 		while (results.hasNext()) 
         {
-			NflTeam nflSeason = results.next();						
-            this.getFullNflTeamList().add(nflSeason);            
+			NflTeam nflTeam = results.next();
+			nflTeam.setFullTeamName();
+            this.getFullNflTeamList().add(nflTeam);            
         }
 		
 		logger.info("LoggedDBOperation: function-inquiry; table:nflteam; rows:" + this.getFullNflTeamList().size());
@@ -172,6 +167,11 @@ public class NflTeamDAO implements Serializable
 
 	public void setFullNflTeamsMap(Map<Integer, NflTeam> fullNflTeamsMap) {
 		this.fullNflTeamsMap = fullNflTeamsMap;
+	}
+
+	public NflTeam getTeamByTeamID(int teamId) 
+	{
+		return this.getFullNflTeamsMap().get(teamId);
 	}
 
 

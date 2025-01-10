@@ -1,0 +1,203 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">
+    
+         <h:form id="gameAddUpdateForm">                      
+     
+             <p:messages id="facesMessagesID" showDetail="false"/>
+            
+            <table>
+            
+           	   <colgroup>
+           	       <col width="50%"/>
+           	       <col width="50%"/>
+           	   </colgroup>
+           	   
+               <p:blockUI block="gameAddUpdateForm" widgetVar="blockWidgetVar"> 
+			       <p:graphicImage value="/images/wait.gif"/>  
+			   </p:blockUI> 
+				
+			   <tr>
+			   
+			      <td colspan="2" align="center">
+			   		  <h:outputText value="View Add Update Delete game" styleClass="pageSectionTitle"/>
+			   	  </td>
+			   	  
+			   </tr>
+			   
+		       <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="gameidlabelId" value="Game Id" rendered="#{pc_NflMain.renderGameId}"/> &#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="gameIdId" value="#{pc_NflGame.selectedGame.igameId}" rendered="#{pc_NflMain.renderGameId}"/>
+		          </td>
+        	        		
+        	   </tr>
+        	   
+		       <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="weekidlabelId" value="Week Id" rendered="#{pc_NflMain.renderGameId}"/> &#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="weekIdId" value="#{pc_NflGame.selectedGame.iweekId}" rendered="#{pc_NflMain.renderGameId}"/>
+		          </td>
+        	        		
+        	   </tr>
+        	   
+	           <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="weeknumberlabelId" value="Week Number"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">
+	              
+        		     <h:outputText id="weekNumberId" value="#{pc_NflGame.selectedGame.iweekNumber}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
+        		     
+        		     <p:selectOneMenu id="weekNumberDropdownId" value="#{pc_NflGame.selectedGame.iweekNumber}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
+						 <f:selectItems value="#{pc_NflMain.weekNumbersList}" />
+					 </p:selectOneMenu>	  
+		          </td>
+        	        		
+        	   </tr>
+        	   
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="gameDatelabelId" value="Date (format: dayofweek yyyy-mm-dd hh:mm PM)"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="gameDateId1" value="#{pc_NflGame.selectedGame.gameDateTimeDisplay}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/>         		     
+        		     <p:inputText id="gameDateId2" value="#{pc_NflGame.selectedGame.gameDateTimeDisplay}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}"/>					
+		          </td>
+        	        		
+        	   </tr>
+        	   
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="gameTypelabelId" value="Game Type"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">
+	              
+        		     <h:outputText id="gameTypeId" value="#{pc_NflGame.selectedGame.sgameTypeDesc}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
+        		     
+        		     <p:selectOneMenu id="gameTypeDropdownId" value="#{pc_NflGame.selectedGame.igameTypeId}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
+						 <f:selectItems value="#{pc_NflMain.gameTypesList}" />
+					 </p:selectOneMenu>	  
+		          </td>
+        	        		
+        	   </tr>        	   
+        	   
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="awayTeamlabelId" value="Away Team"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="awayTeamId" value="#{pc_NflGame.selectedGame.awayteamName}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
+        		     
+        		     <p:selectOneMenu id="awayTeamDropdownId" value="#{pc_NflGame.selectedGame.iawayTeamID}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
+						 <f:selectItems value="#{pc_NflMain.teamsList}" />
+					 </p:selectOneMenu>	  
+		          </td>
+        	        		
+        	   </tr>  
+        	         	
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="homeTeamlabelId" value="Home Team"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">
+	              	 <h:outputText id="homeTeamId" value="#{pc_NflGame.selectedGame.hometeamName}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
+        		     
+        		     <p:selectOneMenu id="homeTeamDropdownId" value="#{pc_NflGame.selectedGame.ihomeTeamID}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
+						 <f:selectItems value="#{pc_NflMain.teamsList}" />
+					 </p:selectOneMenu>	  
+		          </td>
+        	        		
+        	   </tr>        	
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="awayscorelabelId" value="Away Team Score"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="awayScoreId1" value="#{pc_NflGame.selectedGame.iawayTeamScore}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/>         		     
+        		     <p:inputNumber id="awayScoreId2" emptyValue="empty" maxValue="99" decimalPlaces="0" size="2" value="#{pc_NflGame.selectedGame.iawayTeamScore}" rendered="#{pc_NflMain.renderGameUpdateFields}"/> 	
+			      </td>
+
+        	        		
+        	   </tr>
+        	   
+        	   <tr>
+	          
+	              <td align="right">
+         		     <p:outputLabel id="homescorelabelId" value="Home Team Score"/>&#xA0;&#xA0;
+		          </td>
+		          
+	              <td align="left">	              
+        		     <h:outputText id="homeScoreId1" value="#{pc_NflGame.selectedGame.ihomeTeamScore}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/>         		     
+        		     <p:inputNumber id="homeScoreId2" emptyValue="empty" maxValue="99" decimalPlaces="0" size="2" value="#{pc_NflGame.selectedGame.ihomeTeamScore}" rendered="#{pc_NflMain.renderGameUpdateFields}"/> 	
+			      </td>
+        	        		
+        	   </tr>
+        	   
+        	   <tr>
+			   
+			      <td colspan="2">
+			   		  <br/>
+			   	  </td>
+			   	  
+			   </tr>
+			   
+        	   <tr>
+			   
+			      <td colspan="2" align="center">
+			   		  <p:commandButton id="UpdateId1" 				   
+						    value="Add" 	
+						    rendered="#{pc_NflMain.gameAcidSetting eq 'Add'}"
+						    action="#{pc_NflGame.addChangeDelGame}"
+						    update="gameAddUpdateForm">
+					  </p:commandButton>
+					  <p:commandButton id="UpdateId2" 				   
+						    value="Update" 	
+						    rendered="#{pc_NflMain.gameAcidSetting eq 'Update'}"
+						    action="#{pc_NflGame.addChangeDelGame}"
+						    update="gameAddUpdateForm">
+					  </p:commandButton>
+					  <p:commandButton id="UpdateId3" 				   
+						    value="Delete" 	
+						    rendered="#{pc_NflMain.gameAcidSetting eq 'Delete'}"
+						    action="#{pc_NflGame.addChangeDelGame}"
+						    update="gameAddUpdateForm">
+					  </p:commandButton>
+			   	  </td>
+			   	  
+			   </tr>
+        	           		     
+		    </table>
+	                
+	   </h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

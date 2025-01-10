@@ -8,191 +8,237 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pas.dynamodb.DateToStringConverter;
+import com.pas.dynamodb.DynamoNflGame;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
-@DynamoDbBean
+@Named("pc_NflGame")
+@SessionScoped
 public class NflGame implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = LogManager.getLogger(NflGame.class);	
 	
-	private Integer igameId;
-    private String dgameDateTime;
-    private Integer iawayTeamID;
-    private String cawayteamCityAbbr;
-    private String awayteamName;
-    private Integer ihomeTeamID;
-    private String chometeamCityAbbr;
-    private String hometeamName;
-    private Integer iawayTeamScore;
-    private Integer ihomeTeamScore;
-    private Integer iweekId;
-    private Integer igameTypeId;
-    private String sgameTypeDesc;
-    private Integer iplayoffRound;
-    private Integer iSeasonId;
-    private Integer iweekNumber;
-    private String sweekDescription;
+	private DynamoNflGame selectedGame;
     
-    //these next ones are not true game table fields but we need them here 
-    private String gameDayOfWeek;
-    private String gameDateOnly;
-    private String gameTimeOnly;
+    
+    
+    @Inject NflMain nflMain;
     
     public String toString()
     {
-    	return "seasonid: " + iSeasonId + " game date: " + dgameDateTime + " " + cawayteamCityAbbr + " @ " + chometeamCityAbbr;
+    	return "seasonid: " + this.getSelectedGame().getiSeasonId() + " game date: " + selectedGame.getDgameDateTime() + " " + this.getSelectedGame().getCawayteamCityAbbr() + " @ " + this.getSelectedGame().getChometeamCityAbbr();
     }
-    
-    @DynamoDbPartitionKey
-	public Integer getIgameId() 
+   
+    public String addChangeDelGame() 
+	{	 
+		logger.info("entering addChangeDelGame.  Action will be: " + nflMain.getGameAcidSetting());
+		
+		if (!validateGameEntry()) //will be true if all good.  If false, we leave
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,"Please enter all required fields",null);
+	        FacesContext.getCurrentInstance().addMessage(null, msg);    
+			return "";
+		}
+		
+		try
+		{
+			if (nflMain.getGameAcidSetting().equalsIgnoreCase("Add"))
+			{			
+				setAddUpdateFields();			   
+				nflMain.getNflGameDAO().addNflGame(this.getSelectedGame());
+			}
+			else if (nflMain.getGameAcidSetting().equalsIgnoreCase("Update"))
+			{
+				setAddUpdateFields();		
+				nflMain.getNflGameDAO().updateNflGame(this.getSelectedGame());
+			}
+			else if (nflMain.getGameAcidSetting().equalsIgnoreCase("Delete"))
+			{
+				nflMain.getNflGameDAO().deleteNflGame(this.getSelectedGame());
+			}
+		}
+		catch (Exception e)
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+	        FacesContext.getCurrentInstance().addMessage(null, msg);    
+			return "";
+		}
+	    return "gamesList.xhtml";
+	}
+  	private void setAddUpdateFields() 
     {
-    	logger.debug("returning igameid");
-		return igameId;
-	}
-	public void setIgameId(Integer igameId) {
-		this.igameId = igameId;
-	}
-	@DynamoDbSecondaryPartitionKey(indexNames = "gsi_GameDate")
-	public String getDgameDateTime() {
-		return dgameDateTime;
-	}
-	public void setDgameDateTime(String dgameDateTime) 
-	{
-		this.dgameDateTime = dgameDateTime;
-	}
-	public Integer getIawayTeamID() {
-		return iawayTeamID;
-	}
-	public void setIawayTeamID(Integer iawayTeamID) {
-		this.iawayTeamID = iawayTeamID;
-	}
-	public String getCawayteamCityAbbr() {
-		return cawayteamCityAbbr;
-	}
-	public void setCawayteamCityAbbr(String cawayteamCityAbbr) {
-		this.cawayteamCityAbbr = cawayteamCityAbbr;
-	}
-	public Integer getIhomeTeamID() {
-		return ihomeTeamID;
-	}
-	public void setIhomeTeamID(Integer ihomeTeamID) {
-		this.ihomeTeamID = ihomeTeamID;
-	}
-	public String getChometeamCityAbbr() {
-		return chometeamCityAbbr;
-	}
-	public void setChometeamCityAbbr(String chometeamCityAbbr) {
-		this.chometeamCityAbbr = chometeamCityAbbr;
-	}
-	public Integer getIawayTeamScore() {
-		return iawayTeamScore;
-	}
-	public void setIawayTeamScore(Integer iawayTeamScore) {
-		this.iawayTeamScore = iawayTeamScore;
-	}
-	public Integer getIhomeTeamScore() {
-		return ihomeTeamScore;
-	}
-	public void setIhomeTeamScore(Integer ihomeTeamScore) {
-		this.ihomeTeamScore = ihomeTeamScore;
-	}
-	public Integer getIweekId() {
-		return iweekId;
-	}
-	public void setIweekId(Integer iweekId) {
-		this.iweekId = iweekId;
-	}
-	public Integer getIgameTypeId() {
-		return igameTypeId;
-	}
-	public void setIgameTypeId(Integer igameTypeId) {
-		this.igameTypeId = igameTypeId;
-	}
-	public String getSgameTypeDesc() {
-		return sgameTypeDesc;
-	}
-	public void setSgameTypeDesc(String sgameTypeDesc) {
-		this.sgameTypeDesc = sgameTypeDesc;
-	}
-	public Integer getIplayoffRound() {
-		return iplayoffRound;
-	}
-	public void setIplayoffRound(Integer iplayoffRound) {
-		this.iplayoffRound = iplayoffRound;
-	}
-	public Integer getiSeasonId() {
-		return iSeasonId;
-	}
-	public void setiSeasonId(Integer iSeasonId) {
-		this.iSeasonId = iSeasonId;
-	}
-	public Integer getIweekNumber() {
-		return iweekNumber;
-	}
-	public void setIweekNumber(Integer iweekNumber) {
-		this.iweekNumber = iweekNumber;
-	}
-	public String getSweekDescription() {
-		return sweekDescription;
-	}
-	public void setSweekDescription(String sweekDescription) {
-		this.sweekDescription = sweekDescription;
-	}
-	
-	public String getGameDayOfWeek() 
-	{
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE");
-		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
-		this.setGameDayOfWeek(sdf.format(gameDate));
-		return gameDayOfWeek;
-	}
-	public void setGameDayOfWeek(String gameDayOfWeek) 
-	{		
-		this.gameDayOfWeek = gameDayOfWeek;
-	}
-	public String getGameDateOnly() 
-	{
-		SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
-		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
-		this.setGameDateOnly(sdf.format(gameDate));
-		return gameDateOnly;
-	}	
-	public void setGameDateOnly(String gameDateOnly) 
-	{		
-		this.gameDateOnly = gameDateOnly;
-	}
-	
-	public String getGameTimeOnly() 
-	{
-		SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
-		Date gameDate = DateToStringConverter.unconvert(this.getDgameDateTime());
-		this.setGameTimeOnly(sdf.format(gameDate));
-		return gameTimeOnly;
-	}
-	public void setGameTimeOnly(String gameTimeOnly) 
-	{
-		this.gameTimeOnly = gameTimeOnly;
+    	/* already set on page:
+		iweeknumber
+		igametypeid
+		iawayteamid
+		ihometeamid
+		iawayteamscore
+		ihometeamscore
+		date - but we have to manipulate this
+		*/
+    	
+		this.getSelectedGame().setiSeasonId(nflMain.getCurrentSelectedSeason().getiSeasonID());
+		this.getSelectedGame().setcYear(nflMain.getCurrentSelectedSeason().getcYear());
+		
+		if (this.getSelectedGame().getIhomeTeamScore() == null || this.getSelectedGame().getIawayTeamScore() == null)
+		{
+			this.getSelectedGame().setHomeTeamScoreStyleClass("");
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() > this.getSelectedGame().getIawayTeamScore())
+		{
+			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() < this.getSelectedGame().getIawayTeamScore())
+		{
+			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.RED_STYLECLASS);
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() == this.getSelectedGame().getIawayTeamScore()) //tie
+		{
+			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
+		}
+		
+		if (this.getSelectedGame().getIhomeTeamScore() == null || this.getSelectedGame().getIawayTeamScore() == null)
+		{
+			this.getSelectedGame().setAwayTeamScoreStyleClass("");
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() < this.getSelectedGame().getIawayTeamScore())
+		{
+			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() > this.getSelectedGame().getIawayTeamScore())
+		{
+			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.RED_STYLECLASS);
+		}
+		else if (this.getSelectedGame().getIhomeTeamScore() == this.getSelectedGame().getIawayTeamScore()) //tie
+		{
+			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
+		}
+		        
+		this.getSelectedGame().setGameDayOfWeek(this.getSelectedGame().getGameDateTimeDisplay().substring(0, 3));
+		this.getSelectedGame().setGameDateOnly(this.getSelectedGame().getGameDateTimeDisplay().substring(4, 14));
+		this.getSelectedGame().setGameTimeOnly(this.getSelectedGame().getGameDateTimeDisplay().substring(15));
+		
+		this.getSelectedGame().setDgameDateTime(DateToStringConverter.convertDateToDynamoStringFormat(this.getSelectedGame().getGameDateTimeDisplay()));
+		
+		NflTeam homeTeam = nflMain.getTeamByTeamID(this.getSelectedGame().getIhomeTeamID());
+		NflTeam awayTeam = nflMain.getTeamByTeamID(this.getSelectedGame().getIawayTeamID());
+		
+		this.getSelectedGame().setCawayteamCityAbbr(awayTeam.getcTeamCityAbbr());
+		this.getSelectedGame().setAwayteamName(awayTeam.getFullTeamName());
+		this.getSelectedGame().setChometeamCityAbbr(homeTeam.getcTeamCityAbbr());
+		this.getSelectedGame().setHometeamName(homeTeam.getFullTeamName());
+					   
+		this.getSelectedGame().setSgameTypeDesc(nflMain.getGameTypeDescriptionByGameTypeId(this.getSelectedGame().getIgameTypeId()));
+		this.getSelectedGame().setSweekDescription(nflMain.getGameTypeDescriptionByGameTypeId(this.getSelectedGame().getIgameTypeId()));
+		this.getSelectedGame().setIweekId(nflMain.getAddedWeekId(this.getSelectedGame().getSgameTypeDesc()));
+		
+		if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Regular Season"))
+		{
+			this.getSelectedGame().setIplayoffRound(0);
+		}
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Wild Card Round"))
+		{
+			this.getSelectedGame().setIplayoffRound(1);
+		}
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Divisional Round"))
+		{
+			this.getSelectedGame().setIplayoffRound(2);
+		}
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Conference Finals"))
+		{
+			this.getSelectedGame().setIplayoffRound(3);
+		}
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Super Bowl"))
+		{
+			this.getSelectedGame().setIplayoffRound(4);
+		}
 	}
 
-	public String getAwayteamName() {
-		return awayteamName;
+	public void selectGameforAcid(ActionEvent event) 
+	{
+		logger.info("game selected for add-change-inquire-delete");
+		
+		try 
+        {
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		    String acid = ec.getRequestParameterMap().get("operation");
+		    String gameId = ec.getRequestParameterMap().get("gameId");
+		    nflMain.setGameAcidSetting(acid);
+		    logger.info("game id selected: " + gameId);
+		    
+		    if (nflMain.getGameAcidSetting().equalsIgnoreCase("add"))
+		    {
+		    	this.setSelectedGame(new DynamoNflGame()); 
+		    }
+		    else //go get the existing game
+		    {
+		    	this.setSelectedGame(nflMain.getGameByGameID(Integer.parseInt(gameId)));
+		    }
+		    
+		    nflMain.setRenderGameViewAddUpdateDelete(); 
+		    
+		    String targetURL = "/nfl/gameAddUpdate.xhtml";
+		    ec.redirect(targetURL);
+            logger.info("successfully redirected to: " + targetURL + " with operation: " + acid);
+        } 
+        catch (Exception e) 
+        {
+            logger.error("selectGameforAcid exception: " + e.getMessage(), e);
+        }
+	}
+    
+    private boolean validateGameEntry() 
+    {
+		boolean fieldsValidated = true; //assume true, if anything wrong make it false and get out
+		
+		if (this.getSelectedGame().getIweekNumber() == null)
+		{
+			fieldsValidated = false;
+		}
+		if (this.getSelectedGame().getIawayTeamID() == null)
+		{
+			fieldsValidated = false;
+		}
+		if (this.getSelectedGame().getIhomeTeamID() == null)
+		{
+			fieldsValidated = false;
+		}
+		
+		if (this.getSelectedGame().getGameDateTimeDisplay() == null || this.getSelectedGame().getGameDateTimeDisplay().trim().length() == 0)
+		{
+			fieldsValidated = false;
+		}
+		else //something in the gamedatetime - make sure it parses in our format
+		{
+			SimpleDateFormat sdf = new SimpleDateFormat("E yyyy-MM-dd HH:mm a");
+	        try 
+	        {
+	            Date parsedDate = sdf.parse(this.getSelectedGame().getGameDateTimeDisplay());
+	            logger.debug("parsed date = " + parsedDate);
+	        }
+	        catch (Exception e) 
+	        {
+	        	logger.error("Error parsing date: " + this.getSelectedGame().getGameDateTimeDisplay());
+	        	fieldsValidated = false;
+	        }
+		}
+		return fieldsValidated;
 	}
 
-	public void setAwayteamName(String awayteamName) {
-		this.awayteamName = awayteamName;
+	public DynamoNflGame getSelectedGame() {
+		return selectedGame;
 	}
 
-	public String getHometeamName() {
-		return hometeamName;
-	}
-
-	public void setHometeamName(String hometeamName) {
-		this.hometeamName = hometeamName;
+	public void setSelectedGame(DynamoNflGame selectedGame) {
+		this.selectedGame = selectedGame;
 	}
 	
 }

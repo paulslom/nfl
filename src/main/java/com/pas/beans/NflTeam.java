@@ -26,7 +26,9 @@ public class NflTeam implements Serializable
     private Integer iConferenceID;
     private String vDivisionLifespan;
     private String vDivisionName;
-    private String vConferenceName;
+    private String vConferenceName;    
+    
+    private String fullTeamName;
     
     @DynamoDbPartitionKey
 	public Integer getiTeamID() 
@@ -104,6 +106,19 @@ public class NflTeam implements Serializable
 		this.vConferenceName = vConferenceName;
 	}
     
+    public String getFullTeamName()
+    {    	
+    	return fullTeamName;
+    }
     
+	public void setFullTeamName() 
+	{
+		this.fullTeamName = this.getvTeamCity() + " " + this.getvTeamNickname();
+	}
+	
+	public void setFullTeamName(String fullTeamName) 
+	{
+		this.fullTeamName = fullTeamName;
+	}
 	
 }

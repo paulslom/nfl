@@ -2,6 +2,7 @@ package com.pas.beans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.pas.dynamodb.DynamoClients;
+import com.pas.dynamodb.DynamoNflGame;
 import com.pas.dynamodb.DynamoUtil;
 import com.pas.nfl.dao.NflGameDAO;
 import com.pas.nfl.dao.NflPlayoffTeamDAO;
@@ -26,6 +28,7 @@ import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.event.ActionEvent;
+import jakarta.faces.model.SelectItem;
 import jakarta.inject.Named;
 
 @Named("pc_NflMain")
@@ -37,9 +40,12 @@ public class NflMain implements Serializable
 		
 	private final double id = Math.random();	
 	
-	public static String GREEN_STYLECLASS = "menuGreen";
-	public static String RED_STYLECLASS = "menuRed";
-	public static String YELLOW_STYLECLASS = "menuYellow";
+	public static String GREEN_STYLECLASS_MENU = "menuGreen";
+	public static String RED_STYLECLASS_MENU = "menuRed";
+	
+	public static String GREEN_STYLECLASS = "resultGreen";
+	public static String RED_STYLECLASS = "resultRed";
+	public static String YELLOW_STYLECLASS = "resultYellow";
 	
 	private String siteTitle;	
 	
@@ -49,6 +55,12 @@ public class NflMain implements Serializable
 	
 	private String currentSeasonDisplay;
 	private NflSeason currentSelectedSeason;
+	private List<Integer> weekNumbersList = new ArrayList<>();
+	
+	private String gameAcidSetting = "";
+	
+	private boolean renderGameUpdateFields = false;
+	private boolean renderGameId = false;
 	
 	private NflGameDAO nflGameDAO;
 	private NflPlayoffTeamDAO nflPlayoffTeamDAO;
@@ -75,6 +87,11 @@ public class NflMain implements Serializable
 				
 				this.setCurrentWeekList(calculateCurrentWeekList());
 				breakUpWeekLists();
+				
+				Integer[] weeks = new Integer[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22};
+				weekNumbersList = Arrays.asList(weeks);
+				
+				nflGameDAO.setThisSeasonsTeams(nflGameDAO.getMaxSeasonID(), null);
 			}
 		} 
 		catch (Exception e) 
@@ -86,7 +103,7 @@ public class NflMain implements Serializable
 	private void loadNflSeasons(DynamoClients dynamoClients)  throws Exception
 	{
 		logger.info("entering loadNflSeasons");
-		nflSeasonDAO = new NflSeasonDAO(dynamoClients, this);
+		nflSeasonDAO = new NflSeasonDAO(dynamoClients);
 		nflSeasonDAO.readNflSeasonsFromDB();
 		this.setCurrentSeasonDisplay("Working on Season: " + nflSeasonDAO.getMaxSeason().getcYear());
 		this.setCurrentSelectedSeason(nflSeasonDAO.getMaxSeason());
@@ -96,7 +113,7 @@ public class NflMain implements Serializable
 	private void loadNflTeams(DynamoClients dynamoClients)  throws Exception
 	{
 		logger.info("entering loadNflTeams");
-		nflTeamDAO = new NflTeamDAO(dynamoClients, this);
+		nflTeamDAO = new NflTeamDAO(dynamoClients);
 		nflTeamDAO.readNflTeamsFromDB();
 		logger.info("Nfl Teams read in. List size = " + nflTeamDAO.getFullNflTeamList().size());		
     }
@@ -112,7 +129,7 @@ public class NflMain implements Serializable
 	private void loadNflPlayoffTeams(DynamoClients dynamoClients)  throws Exception
 	{
 		logger.info("entering loadNflPLayoffTeams");
-		nflPlayoffTeamDAO = new NflPlayoffTeamDAO(dynamoClients, this);
+		nflPlayoffTeamDAO = new NflPlayoffTeamDAO(dynamoClients);
 		nflPlayoffTeamDAO.readNflPlayoffTeamsFromDB();
 		logger.info("Nfl Playoff Teams read in. List size = " + nflPlayoffTeamDAO.getFullNflPlayoffTeamList().size());		
     }
@@ -127,7 +144,9 @@ public class NflMain implements Serializable
             String seasonYear = ((String) mi.getValue());
             this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
             this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
-            this.setCurrentWeekList(calculateCurrentWeekList());            
+            this.setCurrentWeekList(calculateCurrentWeekList());
+            nflGameDAO.setThisSeasonsTeams(null,seasonYear);
+            nflGameDAO.setMaxRegularSeasonWeekID();
         } 
         catch (Exception e) 
         {
@@ -153,18 +172,18 @@ public class NflMain implements Serializable
             logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
         }
 	}
-	
+			
 	private List<InnerWeek> calculateCurrentWeekList() 
 	{		
 		List<InnerWeek> returnList = new ArrayList<>();
-		List<NflGame> thisSeasonsGamesList = nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
+		List<DynamoNflGame> thisSeasonsGamesList = nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
 		
 		//we need a list of unique weeks for this season.  Have the key be the week number, and the value be an InnerWeek.  Then we can stream to a list from the map later.
 		Map<Integer, InnerWeek> tempMap = new HashMap<>();
 		
 		for (int i = 0; i < thisSeasonsGamesList.size(); i++) 
 		{
-			NflGame nflgame = thisSeasonsGamesList.get(i);
+			DynamoNflGame nflgame = thisSeasonsGamesList.get(i);
 			if (!tempMap.containsKey(nflgame.getIweekNumber()))
 			{
 				InnerWeek innerweek = new InnerWeek();
@@ -245,9 +264,9 @@ public class NflMain implements Serializable
 		this.nflSeasonDAO = nflSeasonDAO;
 	}
 
-	public List<NflGame> getSeasonGamesList()
+	public List<DynamoNflGame> getSeasonGamesList()
 	{
-		return nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
+		return nflGameDAO.getSeasonGamesList();
 	}
 	
 	public List<NflSeason> getFullNflSeasonList() 
@@ -353,6 +372,16 @@ public class NflMain implements Serializable
 		setCurrentWeekSecondHalfList(tempList2);
 	}
 	
+	public List<SelectItem> getGameTypesList() 
+	{		
+		return nflGameDAO.getGameTypesList();
+	}
+	
+	public List<SelectItem> getTeamsList() 
+	{		
+		return nflGameDAO.getTeamsList();
+	}
+	
 	public List<InnerWeek> getCurrentWeekSecondHalfList() 
 	{		
 		return currentWeekSecondHalfList;
@@ -362,5 +391,127 @@ public class NflMain implements Serializable
 	{
 		this.currentWeekSecondHalfList = currentWeekSecondHalfList;
 	}
+
+	public String getGameAcidSetting() {
+		return gameAcidSetting;
+	}
+
+	public void setGameAcidSetting(String gameAcidSetting) {
+		this.gameAcidSetting = gameAcidSetting;
+	}
+
+	public void setRenderGameViewAddUpdateDelete() 
+	{
+		if (gameAcidSetting == null)
+		{
+			this.setRenderGameUpdateFields(false);
+			this.setRenderGameId(false);
+		}
+		else
+		{
+			if (gameAcidSetting.equalsIgnoreCase("View"))
+			{
+				this.setRenderGameUpdateFields(false);
+				this.setRenderGameId(false);
+			}
+			else if (gameAcidSetting.equalsIgnoreCase("Add"))
+			{
+				this.setRenderGameUpdateFields(true);
+				this.setRenderGameId(false);
+			}
+			else if (gameAcidSetting.equalsIgnoreCase("Update"))
+			{
+				this.setRenderGameUpdateFields(true);
+				this.setRenderGameId(true);
+			}
+			else if (gameAcidSetting.equalsIgnoreCase("Delete"))
+			{
+				this.setRenderGameUpdateFields(false);
+				this.setRenderGameId(true);
+			}
+			else //not sure what to do then...
+			{
+				this.setRenderGameUpdateFields(false);
+				this.setRenderGameId(false);
+			}
+		}
 		
+	}
+
+
+	public List<Integer> getWeekNumbersList() {
+		return weekNumbersList;
+	}
+
+	public void setWeekNumbersList(List<Integer> weekNumbersList) {
+		this.weekNumbersList = weekNumbersList;
+	}
+
+	public DynamoNflGame getGameByGameID(int gameId)
+	{
+		return nflGameDAO.getGameByGameID(gameId);
+	}
+	
+	public NflTeam getTeamByTeamID(int teamId)
+	{
+		return nflTeamDAO.getTeamByTeamID(teamId);
+	}
+	
+	public String getGameTypeDescriptionByGameTypeId(int gameTypeId)
+	{
+		return nflGameDAO.getGameTypeDescriptionByGameTypeId(gameTypeId);
+	}
+	
+	public Integer getWeekIdByWeekNumber(int weekNumber)
+	{
+		return nflGameDAO.getWeekIdByWeekNumber(weekNumber);
+	}
+
+	public Integer getAddedWeekId(String gameTypeDescription) 
+	{
+		//need to know the max week id for all regular season games; this is really only for playoff games
+		Integer maxRegSeasonWeekid = nflGameDAO.getMaxRegularSeasonWeekID();
+		
+		Integer weekToAdd = 0;
+		
+		if (gameTypeDescription.equalsIgnoreCase("Regular Season"))
+		{
+			weekToAdd = maxRegSeasonWeekid;
+		}
+		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Wild Card Round"))
+		{
+			weekToAdd = maxRegSeasonWeekid + 1;
+		}
+		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Divisional Round"))
+		{
+			weekToAdd = maxRegSeasonWeekid + 2;
+		}
+		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Conference Finals"))
+		{
+			weekToAdd = maxRegSeasonWeekid + 3;
+		}
+		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Super Bowl"))
+		{
+			weekToAdd = maxRegSeasonWeekid + 4;
+		}
+		
+		return weekToAdd;
+    }
+
+	public boolean isRenderGameUpdateFields() {
+		return renderGameUpdateFields;
+	}
+
+	public void setRenderGameUpdateFields(boolean renderGameUpdateFields) {
+		this.renderGameUpdateFields = renderGameUpdateFields;
+	}
+
+	public boolean isRenderGameId() {
+		return renderGameId;
+	}
+
+	public void setRenderGameId(boolean renderGameId) {
+		this.renderGameId = renderGameId;
+	}
+	
 }

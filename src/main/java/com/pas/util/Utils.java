@@ -16,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.pas.beans.NflMain;
 import com.pas.pojo.Decade;
 import com.pas.pojo.OuterWeek;
 
@@ -192,5 +193,76 @@ public class Utils
 		return outerWeeksList;
 	}
 	
-			
+	public static String getGameDayOfWeek(String gameDateTime)
+	{
+		String gameDayOfWeek = gameDateTime.substring(0, 3);
+		return gameDayOfWeek;
+	}
+	
+	public static String getGameDateOnly(String gameDateTime)
+	{
+		String gameDateOnly = gameDateTime.substring(4, 14);
+		return gameDateOnly;
+	}
+	
+	public static String getGameTimeOnly(String gameDateTime)
+	{
+		String gameTimeOnly = gameDateTime.substring(15);
+		return gameTimeOnly;
+	}
+	
+	public static String getHomeTeamScoreStyleClass(Integer ihomeTeamScore, Integer iawayTeamScore) 
+	{
+		String returnString = "";
+		
+		if (ihomeTeamScore == null || iawayTeamScore == null)
+		{
+			returnString = "";
+		}
+		else if (ihomeTeamScore > iawayTeamScore)
+		{
+			returnString = NflMain.GREEN_STYLECLASS;
+		}
+		else if (ihomeTeamScore < iawayTeamScore)
+		{
+			returnString = NflMain.RED_STYLECLASS;
+		}
+		else if (ihomeTeamScore == iawayTeamScore) //tie
+		{
+			returnString = NflMain.YELLOW_STYLECLASS;
+		}
+		
+		return returnString;
+	}
+
+	public static String getAwayTeamScoreStyleClass(Integer ihomeTeamScore, Integer iawayTeamScore) 
+	{
+		String returnString = "";
+		
+		if (ihomeTeamScore == null || iawayTeamScore == null)
+		{
+			returnString = "";
+		}
+		else if (ihomeTeamScore > iawayTeamScore)
+		{
+			returnString = NflMain.RED_STYLECLASS;
+		}
+		else if (ihomeTeamScore < iawayTeamScore)
+		{
+			returnString = NflMain.GREEN_STYLECLASS;
+		}
+		else if (ihomeTeamScore == iawayTeamScore) //tie
+		{
+			returnString = NflMain.YELLOW_STYLECLASS;
+		}
+		
+		return returnString;
+	}
+	
+	public static String getGameDateTimeDisplay(String gameDateTime)
+	{
+		String returnString = "";
+		returnString = getGameDayOfWeek(gameDateTime)  + " " + getGameDateOnly(gameDateTime) + " " + getGameTimeOnly(gameDateTime);
+		return returnString;
+	}
 }

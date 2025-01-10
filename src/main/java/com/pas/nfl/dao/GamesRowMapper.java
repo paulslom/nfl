@@ -7,21 +7,19 @@ import java.sql.Timestamp;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.pas.beans.NflGame;
 import com.pas.dynamodb.DateToStringConverter;
+import com.pas.dynamodb.DynamoNflGame;
+import com.pas.util.Utils;
 
-public class GamesRowMapper implements RowMapper<NflGame>, Serializable 
+public class GamesRowMapper implements RowMapper<DynamoNflGame>, Serializable 
 {
     private static final long serialVersionUID = 1L;
 
 	@Override
-    public NflGame mapRow(ResultSet rs, int rowNum) throws SQLException 
+    public DynamoNflGame mapRow(ResultSet rs, int rowNum) throws SQLException 
     {
-		NflGame game = new NflGame();
-    	
-		Timestamp ts = rs.getTimestamp("dGameDateTime");
-		game.setDgameDateTime(DateToStringConverter.convertSqlTimestampToDynamoStringFormat(ts));	
-		
+		DynamoNflGame game = new DynamoNflGame();
+    			
 		game.setIawayTeamID(rs.getInt("iAwayTeamID"));
 		
 		Integer awayScore = rs.getInt("iAwayTeamScore");
@@ -33,6 +31,8 @@ public class GamesRowMapper implements RowMapper<NflGame>, Serializable
 		{
 			game.setIawayTeamScore(awayScore);
 		}
+		
+		game.setcYear(rs.getString("cYear"));
 		
 		game.setIgameId(rs.getInt("iGameId"));
 		game.setIgameTypeId(rs.getInt("iGameTypeID"));
@@ -59,7 +59,20 @@ public class GamesRowMapper implements RowMapper<NflGame>, Serializable
 		game.setiSeasonId(rs.getInt("iSeasonId"));
 		game.setIweekNumber(rs.getInt("iweekNumber"));
 		game.setSweekDescription(rs.getString("sweekDescription"));
-					
+		
+		Timestamp ts = rs.getTimestamp("dGameDateTime");
+		String gameDateString = DateToStringConverter.convertMySqlDateTimeToUserInputFormat(ts);
+		
+		game.setGameDateTimeDisplay(gameDateString);
+		game.setDgameDateTime(DateToStringConverter.convertDateToDynamoStringFormat(gameDateString));			
+		game.setGameDayOfWeek(Utils.getGameDayOfWeek(gameDateString));
+		game.setGameDateOnly(Utils.getGameDateOnly(gameDateString));
+		game.setGameTimeOnly(Utils.getGameTimeOnly(gameDateString));
+		
+		game.setHomeTeamScoreStyleClass(Utils.getHomeTeamScoreStyleClass(game.getIhomeTeamScore(), game.getIawayTeamScore()));
+		game.setAwayTeamScoreStyleClass(Utils.getAwayTeamScoreStyleClass(game.getIhomeTeamScore(), game.getIawayTeamScore()));
+		
+	
  		return game; 	    	
     }
 }

@@ -1,43 +1,69 @@
 package com.pas.dynamodb;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import com.pas.util.Utils;
 
 public class DateToStringConverter
 {
+	public static String userInputDateTimePattern = "E yyyy-MM-dd hh:mm a";
+	public static String mysqlDateTimePattern = "yyyy-MM-dd HH:mm:ss.s";  //example: 2004-09-09 21:00:00.0
+	public static String dynamoDbDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss";
+	
     public static Date unconvert(String s) 
     {
-    	//Example of what we are unconverting: 2020-03-21T00:00:00.000-04:00
+    	//Example of what we are unconverting: 2017-12-03T13:00:00
     	
-    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH);
+    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(dynamoDbDateTimePattern);
     	LocalDateTime ldt = LocalDateTime.parse(s, inputFormatter);
     	Date returnDate = Date.from(ldt.atZone(ZoneId.of(Utils.MY_TIME_ZONE)).toInstant());
         return returnDate;
     }
     
-    public static String convertDateToDynamoStringFormat(Date inputDate)
+    public static String convertDateToDynamoStringFormat(String gamedatetimedisplay)
     {
+    	//Example of what we are converting to dynamo: 2017-12-03T13:00:00
+    	
     	String returnString = "";
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    	sdf.setTimeZone(TimeZone.getTimeZone(Utils.MY_TIME_ZONE));
-		returnString = sdf.format(inputDate);
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern(userInputDateTimePattern); 
+    	LocalDateTime datetime = LocalDateTime.parse(gamedatetimedisplay, dtf); 
+    	returnString = datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     	return returnString;
     }
     
-    public static String convertSqlTimestampToDynamoStringFormat(Timestamp inputTs)
+    public static String convertMySqlDateTimeToUserInputFormat(Timestamp inputMySqlTimeStamp)
     {
-    	String returnString = "";
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    	sdf.setTimeZone(TimeZone.getTimeZone(Utils.MY_TIME_ZONE));
-		returnString = sdf.format(inputTs);
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern(mysqlDateTimePattern); 
+    	LocalDateTime ldt = LocalDateTime.parse(inputMySqlTimeStamp.toString(), dtf);
+    	DateTimeFormatter userInputFormatter = DateTimeFormatter.ofPattern(userInputDateTimePattern);
+       	String returnString = ldt.format(userInputFormatter);
     	return returnString;
+    }
+    
+    public static void main(String[] args)
+    {
+    	/*
+    	String dateTimeString = "Mon 2025-01-13 08:00 PM";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(userInputDateTimePattern);  
+    	LocalDateTime datetime = LocalDateTime.parse(dateTimeString, dtf); 
+    	System.out.println("date format : " + datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    	
+    	
+    	String dateTimeString = "2025-01-13 20:00:00";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(mysqlDateTimePattern);  
+    	LocalDateTime datetime = LocalDateTime.parse(dateTimeString, dtf); 
+    	System.out.println("date format : " + datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    	*/
+    	
+    	String sqlDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    	String dateTimeString = "2004-09-09T21:00:00.000-04:00";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(sqlDateTimePattern);  
+    	LocalDateTime datetime = LocalDateTime.parse(dateTimeString, dtf); 
+    	System.out.println("date format : " + datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    	
     }
 }

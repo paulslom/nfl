@@ -3,12 +3,12 @@ package com.pas.util;
 import java.util.Comparator;
 import java.util.Date;
 
-import com.pas.beans.NflGame;
 import com.pas.dynamodb.DateToStringConverter;
+import com.pas.dynamodb.DynamoNflGame;
 
-public class GameComparator implements Comparator<NflGame>
+public class GameComparator implements Comparator<DynamoNflGame>
 {
-	public int compare(NflGame game1, NflGame game2)
+	public int compare(DynamoNflGame game1, DynamoNflGame game2)
 	{
 		Integer seasonId1 = game1.getiSeasonId();
 		Integer weekNumber1 = game1.getIweekNumber();

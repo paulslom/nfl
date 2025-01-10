@@ -3,7 +3,7 @@ package com.pas.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.pas.beans.NflGame;
+import com.pas.dynamodb.DynamoNflGame;
 import com.pas.nfl.constants.INFLAppConstants;
 
 public class NFLUtil
@@ -22,7 +22,7 @@ public class NFLUtil
 	//It will also put the @ sign in front if the game is away, 
 	//or capitalize the opponent if it is a home game.
 	
-	public static String getOpponent(Integer teamID, NflGame game)
+	public static String getOpponent(Integer teamID, DynamoNflGame game)
     {
 		String opponent = "";
 		
@@ -45,7 +45,7 @@ public class NFLUtil
 	//for the team provided.
 	//-1 lost, 0 tie, 1 win default to tie
 	
-	public static int getWinLossTie(Integer teamID, NflGame game)
+	public static int getWinLossTie(Integer teamID, DynamoNflGame game)
     {
 		int wlt = INFLAppConstants.TIE; 
 		

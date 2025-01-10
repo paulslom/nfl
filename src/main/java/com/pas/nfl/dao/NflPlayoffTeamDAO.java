@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.pas.beans.NflMain;
 import com.pas.beans.NflPlayoffTeam;
 import com.pas.dynamodb.DynamoClients;
 
@@ -34,13 +32,9 @@ public class NflPlayoffTeamDAO implements Serializable
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<NflPlayoffTeam> nflTeamsTable;
 	private static final String AWS_TABLE_NAME = "nflplayoffteams";
-	
-	@Autowired private final NflMain nflmain;
-	
-	public NflPlayoffTeamDAO(DynamoClients dynamoClients2, NflMain nflmain) 
-	{
-		this.nflmain = nflmain;
 		
+	public NflPlayoffTeamDAO(DynamoClients dynamoClients2) 
+	{
 	   try 
 	   {
 	       dynamoClients = dynamoClients2;
