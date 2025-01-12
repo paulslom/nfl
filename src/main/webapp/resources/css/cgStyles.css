@@ -12,7 +12,7 @@
 }
 .resultRed {
 	white-space: pre-line;
-    background-color:  #dc143c;
+    background-color:  #F08080;
     color:  #000000;
     font-weight: normal;
 }
@@ -82,11 +82,14 @@ body.custom-background
 }
 
 .dataTableStyle {
-	font: bold 14px "Verdana";
+	font: bold 12px "Verdana";
 	vertical-align: top;
 	text-align: left;
 	text-decoration: none;
 	color:  #000000;
+	td { 
+		height: 9px;
+	};
 }
 
 .ui-menubar	{

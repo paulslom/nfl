@@ -24,9 +24,13 @@
 	          
 	              <td>
 	                    
-			  		 <p:dataTable id="gamesTableID" value="#{pc_NflMain.seasonGamesList}"
-				          var="game" scrollable="true" scrollHeight="950" styleClass="dataTableStyle;">						
+			  		 <p:dataTable id="gamesTableID" value="#{pc_NflMain.seasonGamesList}" rowIndexVar="rowIndex"
+				          var="game" scrollable="true" scrollHeight="950" styleClass="dataTableStyle">						
 						   
+						  <p:column style="width:5%" headerText="Num">												
+							  <h:outputText value="#{rowIndex + 1}"/>															
+						  </p:column>
+						  
 						  <p:column style="width:5%" headerText="View">			
 						   		<p:commandLink actionListener="#{pc_NflGame.selectGameforAcid}" value="View">
     								<f:param name="operation" value="View" />
@@ -47,7 +51,11 @@
     								<f:param name="gameId" value="#{game.igameId}" />
                                 </p:commandLink>
                           </p:column>
-                                	 				       				  
+                           
+                          <p:column style="width:5%" headerText="Week" sortBy="#{game.iweekNumber}">												
+							  <h:outputText value="#{game.iweekNumber}"/>															
+						  </p:column>
+						       	 				       				  
 						  <p:column style="width:5%" headerText="Day" sortBy="#{game.gameDayOfWeek}">												
 							  <h:outputText value="#{game.gameDayOfWeek}"/>															
 						  </p:column>
@@ -60,7 +68,7 @@
 							  <h:outputText value="#{game.gameTimeOnly}"/>															
 						  </p:column>
 						  
-						  <p:column style="width:25%" headerText="Away" sortBy="#{game.awayteamName}">												
+						  <p:column style="width:20%" headerText="Away" sortBy="#{game.awayteamName}">												
 							  <h:outputText value="#{game.awayteamName}"/>															
 						  </p:column>	
 						  
@@ -68,7 +76,7 @@
 							  <h:outputText value="#{game.iawayTeamScore}" styleClass="#{game.awayTeamScoreStyleClass}" />															
 						  </p:column>	
 						  
-						  <p:column style="width:25%" headerText="Home" sortBy="#{game.hometeamName}">												
+						  <p:column style="width:20%" headerText="Home" sortBy="#{game.hometeamName}">												
 							  <h:outputText value="#{game.hometeamName}"/>															
 						  </p:column>	
 						  

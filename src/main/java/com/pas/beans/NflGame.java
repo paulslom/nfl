@@ -2,13 +2,16 @@ package com.pas.beans;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pas.dynamodb.DateToStringConverter;
 import com.pas.dynamodb.DynamoNflGame;
+import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -27,9 +30,7 @@ public class NflGame implements Serializable
 	private static Logger logger = LogManager.getLogger(NflGame.class);	
 	
 	private DynamoNflGame selectedGame;
-    
-    
-    
+        
     @Inject NflMain nflMain;
     
     public String toString()
@@ -37,6 +38,32 @@ public class NflGame implements Serializable
     	return "seasonid: " + this.getSelectedGame().getiSeasonId() + " game date: " + selectedGame.getDgameDateTime() + " " + this.getSelectedGame().getCawayteamCityAbbr() + " @ " + this.getSelectedGame().getChometeamCityAbbr();
     }
    
+    public String changeGameScores()
+    {
+    	logger.info("entering changeGameScores");
+		
+		try
+		{
+			List<DynamoNflGame> newList = new ArrayList<>(nflMain.getGameScoresList());	
+			for (int i = 0; i < newList.size(); i++) 
+			{
+				DynamoNflGame game = newList.get(i);
+				Utils.updateScoreStyles(game);
+				nflMain.getNflGameDAO().updateNflGame(game);
+				logger.info("update game score count: " + i);
+			}
+			
+		}
+		catch (Exception e)
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+	        FacesContext.getCurrentInstance().addMessage(null, msg); 
+	        logger.error("changeGameScores exception: " + e.getMessage(), e);
+			return "";
+		}
+	    return "gamesList.xhtml";
+    }
+    
     public String addChangeDelGame() 
 	{	 
 		logger.info("entering addChangeDelGame.  Action will be: " + nflMain.getGameAcidSetting());
@@ -88,39 +115,7 @@ public class NflGame implements Serializable
 		this.getSelectedGame().setiSeasonId(nflMain.getCurrentSelectedSeason().getiSeasonID());
 		this.getSelectedGame().setcYear(nflMain.getCurrentSelectedSeason().getcYear());
 		
-		if (this.getSelectedGame().getIhomeTeamScore() == null || this.getSelectedGame().getIawayTeamScore() == null)
-		{
-			this.getSelectedGame().setHomeTeamScoreStyleClass("");
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() > this.getSelectedGame().getIawayTeamScore())
-		{
-			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() < this.getSelectedGame().getIawayTeamScore())
-		{
-			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.RED_STYLECLASS);
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() == this.getSelectedGame().getIawayTeamScore()) //tie
-		{
-			this.getSelectedGame().setHomeTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
-		}
-		
-		if (this.getSelectedGame().getIhomeTeamScore() == null || this.getSelectedGame().getIawayTeamScore() == null)
-		{
-			this.getSelectedGame().setAwayTeamScoreStyleClass("");
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() < this.getSelectedGame().getIawayTeamScore())
-		{
-			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() > this.getSelectedGame().getIawayTeamScore())
-		{
-			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.RED_STYLECLASS);
-		}
-		else if (this.getSelectedGame().getIhomeTeamScore() == this.getSelectedGame().getIawayTeamScore()) //tie
-		{
-			this.getSelectedGame().setAwayTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
-		}
+		Utils.updateScoreStyles(this.getSelectedGame());
 		        
 		this.getSelectedGame().setGameDayOfWeek(this.getSelectedGame().getGameDateTimeDisplay().substring(0, 3));
 		this.getSelectedGame().setGameDateOnly(this.getSelectedGame().getGameDateTimeDisplay().substring(4, 14));
@@ -144,19 +139,19 @@ public class NflGame implements Serializable
 		{
 			this.getSelectedGame().setIplayoffRound(0);
 		}
-		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Wild Card Round"))
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase(Utils.WILD_CARD))
 		{
 			this.getSelectedGame().setIplayoffRound(1);
 		}
-		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Divisional Round"))
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase(Utils.DIVISIONALS))
 		{
 			this.getSelectedGame().setIplayoffRound(2);
 		}
-		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Conference Finals"))
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase(Utils.CONFCHAMPIONSHIPS))
 		{
 			this.getSelectedGame().setIplayoffRound(3);
 		}
-		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Playoffs: Super Bowl"))
+		else if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase(Utils.SUPERBOWL))
 		{
 			this.getSelectedGame().setIplayoffRound(4);
 		}

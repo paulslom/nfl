@@ -77,7 +77,7 @@
 												
 							<c:forEach items="#{pc_NflMain.outerWeeksList}" var="weekOuter">
 							
-						        <p:submenu label="#{weekOuter.outerWeekDescription}">
+						        <p:submenu label="#{weekOuter.outerWeekDescription}" rendered="#{weekOuter.weekNumberStart le 18}">
 						        
 						        	<c:forEach items="#{pc_NflMain.currentWeekFirstHalfList}" var="firsthalfweek">
 										<p:menuitem value="#{firsthalfweek.weekNumber}" 
@@ -95,14 +95,33 @@
 									
 						        </p:submenu>
 						        
+						        <p:menuitem value="#{weekOuter.outerWeekDescription}" 
+									rendered="#{weekOuter.weekNumberStart ge 19}"
+									actionListener="#{pc_NflMain.selectGameScoresWeek}">
+								</p:menuitem>
+						        
 			    			</c:forEach>
 			    						    				
 						</p:submenu>
 						
 						<p:submenu label="Scores By Team">
-							<c:forEach items="#{pc_NflMain.fullNflSeasonList}" var="season">
-						        <p:menuitem value="#{season.cYear}" url="#{request.contextPath}/main.xhtml"/>
-			    			</c:forEach>	
+						
+							<c:forEach items="#{pc_NflMain.divisionsList}" var="division">
+							
+						        <p:submenu label="#{division}">    
+						        	
+						        	<c:forEach items="#{pc_NflMain.teamsListCurrentSeason}" var="team">
+										<p:menuitem value="#{team.fullTeamName}"
+											rendered="#{team.vDivisionName eq division}"
+											actionListener="#{pc_NflMain.selectGameScoresTeam}">
+											   <f:param name="teamid" value="#{team.iTeamID}"/>
+										</p:menuitem>
+									</c:forEach>
+									
+						        </p:submenu>
+						        						        
+			    			</c:forEach>
+			    			
 						</p:submenu>
 						
 						<p:submenu label="Reports">
@@ -127,7 +146,7 @@
 						<p:submenu label="Miscellaneous">
 							<p:menuitem value="Tie Breaker Rules" url="https://www.nfl.com/standings/tie-breaking-procedures"/>
 							<p:menuitem value="Draft Order Rules" url="#{request.contextPath}/draftOrderRules.xhtml"/>	
-							<p:menuitem value="Clone last season" url="#{request.contextPath}/cloneLastSeason.xhtml"/>	
+							<p:menuitem value="Create next season" actionListener="#{pc_NflMain.createNextSeason}"/>	
 						</p:submenu>
 												
 					</p:menubar> 

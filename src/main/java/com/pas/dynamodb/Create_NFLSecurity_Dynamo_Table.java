@@ -61,9 +61,15 @@ public class Create_NFLSecurity_Dynamo_Table
     	logger.info("Inserting data into the table:" + AWS_TABLE_NAME);
          
        	NflSecurity nflSecurity = new NflSecurity();
-       	nflSecurity.setUserName("paulslom");
-       	
+       	nflSecurity.setUserName("paulslom");       	
        	String encodedPW = "";	
+		encodedPW = Utils.getEncryptedPassword(nflSecurity.getUserName());
+       	nflSecurity.setPassword(encodedPW);
+		nflSecurityTable.putItem(nflSecurity); 
+		
+		nflSecurity = new NflSecurity();
+       	nflSecurity.setUserName("jackslom");       	
+       	encodedPW = "";	
 		encodedPW = Utils.getEncryptedPassword(nflSecurity.getUserName());
        	nflSecurity.setPassword(encodedPW);
 		nflSecurityTable.putItem(nflSecurity); 

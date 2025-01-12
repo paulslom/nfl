@@ -1,0 +1,89 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">
+    
+         <h:form id="gameScoresForm">                      
+     
+             <p:messages id="facesMessagesID" showDetail="false"/>
+            
+            <table>
+         		
+			   <tr>
+			      <td align="center">
+			   		  <h:outputText value="Game Scores" styleClass="pageSectionTitle"/>
+			   	  </td>
+			   </tr>
+		    
+	          <tr>
+	          
+	              <td>
+	                    
+			  		 <p:dataTable id="gamesTableID" value="#{pc_NflMain.gameScoresList}" rowIndexVar="rowIndex"
+				          var="game" scrollable="true" scrollHeight="480" styleClass="dataTableStyle">						
+					       
+					      <p:column style="width:5%" headerText="Num">												
+							  <h:outputText value="#{rowIndex + 1}"/>															
+						  </p:column>
+						        	 				       				  
+						  <p:column style="width:5%" headerText="Day" sortBy="#{game.gameDayOfWeek}">												
+							  <h:outputText value="#{game.gameDayOfWeek}"/>															
+						  </p:column>
+						  
+						  <p:column style="width:10%" headerText="Date" sortBy="#{game.gameDateOnly}">												
+							  <h:outputText value="#{game.gameDateOnly}"/>															
+						  </p:column>
+						  
+						  <p:column style="width:10%" headerText="Time" sortBy="#{game.gameTimeOnly}">												
+							  <h:outputText value="#{game.gameTimeOnly}"/>															
+						  </p:column>
+						  
+						  <p:column style="width:25%" headerText="Away" sortBy="#{game.awayteamName}">												
+							  <h:outputText value="#{game.awayteamName}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:10%" headerText="Away Score" sortBy="#{game.iawayTeamScore}">												
+							  <p:inputNumber id="awayScoreId" emptyValue="empty" maxValue="99" decimalPlaces="0" size="2" value="#{game.iawayTeamScore}"
+							  		oninput="autotab(this)" tabindex="#{game.tabIndexAwayTeam}"/> 													
+						  </p:column>	
+						  
+						  <p:column style="width:25%" headerText="Home" sortBy="#{game.hometeamName}">												
+							  <h:outputText value="#{game.hometeamName}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:10%" headerText="Home Score" sortBy="#{game.ihomeTeamScore}">												
+							  <p:inputNumber id="homeScoreId" emptyValue="empty" maxValue="99" decimalPlaces="0" size="2" value="#{game.ihomeTeamScore}"
+							  		oninput="autotab(this)" tabindex="#{game.tabIndexHomeTeam}"/> 		 										
+						  </p:column>		  
+										  
+				     </p:dataTable>
+				     
+				  </td>
+		     </tr>
+		     
+		     <tr>
+			   
+			      <td align="center">
+			   		   <p:commandButton id="UpdateId" 				   
+						    value="Update" 						    
+						    action="#{pc_NflGame.changeGameScores}"
+						    update="gameScoresForm">
+					  </p:commandButton>
+					  
+			   	  </td>
+			   	  
+			 </tr>
+        	           		     
+		   </table>
+	                
+	   </h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

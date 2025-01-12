@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
@@ -41,6 +42,9 @@ public class DynamoNflGame implements Serializable
     private String awayTeamScoreStyleClass;
     private String gameDateTimeDisplay;
 
+    private Integer tabIndexAwayTeam;
+    private Integer tabIndexHomeTeam;
+    
 	@DynamoDbPartitionKey
 	public Integer getIgameId() 
     {
@@ -210,6 +214,23 @@ public class DynamoNflGame implements Serializable
 	}
 	public void setGameDateTimeDisplay(String gameDateTimeDisplay) {
 		this.gameDateTimeDisplay = gameDateTimeDisplay;
+	}
+	
+	@DynamoDbIgnore
+	public Integer getTabIndexAwayTeam() {
+		return tabIndexAwayTeam;
+	}
+	@DynamoDbIgnore
+	public void setTabIndexAwayTeam(Integer tabIndexAwayTeam) {
+		this.tabIndexAwayTeam = tabIndexAwayTeam;
+	}
+	@DynamoDbIgnore
+	public Integer getTabIndexHomeTeam() {
+		return tabIndexHomeTeam;
+	}
+	@DynamoDbIgnore
+	public void setTabIndexHomeTeam(Integer tabIndexHomeTeam) {
+		this.tabIndexHomeTeam = tabIndexHomeTeam;
 	}
 
 }

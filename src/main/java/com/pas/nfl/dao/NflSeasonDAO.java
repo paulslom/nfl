@@ -69,27 +69,10 @@ public class NflSeasonDAO implements Serializable
 	
 	private NflSeason dynamoUpsert(NflSeason nflseason) throws Exception 
 	{
-		NflSeason dynamoNflSeason = new NflSeason();
-        
-		if (nflseason.getiSeasonID() == null)
-		{
-			Integer currentMaxSeasonID = 0;
-			for (int i = 0; i < this.getFullNflSeasonList().size(); i++) 
-			{
-				NflSeason nflSeason = this.getFullNflSeasonList().get(i);
-				currentMaxSeasonID = nflSeason.getiSeasonID();
-			}
-			dynamoNflSeason.setiSeasonID(currentMaxSeasonID + 1);
-		}
-		else
-		{
-			dynamoNflSeason.setiSeasonID(nflseason.getiSeasonID());
-		}
-				
-		PutItemEnhancedRequest<NflSeason> putItemEnhancedRequest = PutItemEnhancedRequest.builder(NflSeason.class).item(dynamoNflSeason).build();
+		PutItemEnhancedRequest<NflSeason> putItemEnhancedRequest = PutItemEnhancedRequest.builder(NflSeason.class).item(nflseason).build();
 		nflSeasonsTable.putItem(putItemEnhancedRequest);
 			
-		return dynamoNflSeason;
+		return nflseason;
 	}
 
 	public void updateNflSeason(NflSeason nflseason)  throws Exception
@@ -190,6 +173,20 @@ public class NflSeasonDAO implements Serializable
 		return maxSeason;
 	}
 	
+	public void createNextSeason() throws Exception
+	{
+		NflSeason newSeason = getMaxSeason();
+		
+		Integer newSeasonID = newSeason.getiSeasonID() + 1;
+		Integer newSeasonYear = Integer.parseInt(newSeason.getcYear());
+		newSeasonYear++;
+		String newSeasonYearString = newSeasonYear.toString();
+		newSeason.setcYear(newSeasonYearString);
+		newSeason.setIntYear(newSeasonYear);
+		newSeason.setiSeasonID(newSeasonID);
+		addNflSeason(newSeason);		
+	}
+	
 	public List<NflSeason> getFullNflSeasonList() 
 	{
 		return fullNflSeasonList;
@@ -255,6 +252,8 @@ public class NflSeasonDAO implements Serializable
 	public void setFullNflSeasonsMapByYear(Map<String, NflSeason> fullNflSeasonsMapByYear) {
 		this.fullNflSeasonsMapByYear = fullNflSeasonsMapByYear;
 	}
+
+	
 
 	
 

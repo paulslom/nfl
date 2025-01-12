@@ -30,6 +30,11 @@ public class NflTeam implements Serializable
     
     private String fullTeamName;
     
+    public String toString()
+    {
+    	return this.getFullTeamName();
+    }
+    
     @DynamoDbPartitionKey
 	public Integer getiTeamID() 
     {

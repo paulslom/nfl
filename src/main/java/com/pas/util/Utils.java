@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.pas.beans.NflMain;
+import com.pas.beans.NflTeam;
+import com.pas.dynamodb.DynamoNflGame;
 import com.pas.pojo.Decade;
 import com.pas.pojo.OuterWeek;
 
@@ -28,7 +32,12 @@ public class Utils
 	private static Logger logger = LogManager.getLogger(Utils.class);	
 		
 	public static String MY_TIME_ZONE = "America/New_York";
-		
+	
+	public static String WILD_CARD = "Playoffs: Wild Card Round";
+	public static String DIVISIONALS = "Playoffs: Divisional Round";
+	public static String CONFCHAMPIONSHIPS = "Playoffs: Conference Finals";
+	public static String SUPERBOWL = "Playoffs: Super Bowl";
+	
 	public static String getLastYearsLastDayDate() 
 	{
 	    Calendar prevYear = Calendar.getInstance();
@@ -165,28 +174,28 @@ public class Utils
 		outerWeek.setWeekNumberStart(10);
 		outerWeek.setWeekNumberEnd(18);
 		outerWeeksList.add(outerWeek);
-		
+	
 		outerWeek = new OuterWeek();
-		outerWeek.setOuterWeekDescription("Wild Card Playoff Round");
-		outerWeek.setWeekNumberStart(null);
+		outerWeek.setOuterWeekDescription(WILD_CARD);
+		outerWeek.setWeekNumberStart(19);
 		outerWeek.setWeekNumberEnd(null);
 		outerWeeksList.add(outerWeek);
 		
 		outerWeek = new OuterWeek();
-		outerWeek.setOuterWeekDescription("Divisional Playoff Round");
-		outerWeek.setWeekNumberStart(null);
+		outerWeek.setOuterWeekDescription(DIVISIONALS);
+		outerWeek.setWeekNumberStart(20);
 		outerWeek.setWeekNumberEnd(null);
 		outerWeeksList.add(outerWeek);
 		
 		outerWeek = new OuterWeek();
-		outerWeek.setOuterWeekDescription("Conference Championships");
-		outerWeek.setWeekNumberStart(null);
+		outerWeek.setOuterWeekDescription(CONFCHAMPIONSHIPS);
+		outerWeek.setWeekNumberStart(21);
 		outerWeek.setWeekNumberEnd(null);
 		outerWeeksList.add(outerWeek);
 		
 		outerWeek = new OuterWeek();
-		outerWeek.setOuterWeekDescription("Super Bowl");
-		outerWeek.setWeekNumberStart(null);
+		outerWeek.setOuterWeekDescription(SUPERBOWL);
+		outerWeek.setWeekNumberStart(22);
 		outerWeek.setWeekNumberEnd(null);
 		outerWeeksList.add(outerWeek);
 		
@@ -264,5 +273,62 @@ public class Utils
 		String returnString = "";
 		returnString = getGameDayOfWeek(gameDateTime)  + " " + getGameDateOnly(gameDateTime) + " " + getGameTimeOnly(gameDateTime);
 		return returnString;
+	}
+
+	public static List<String> getDivisionsList(List<NflTeam> teamsList) 
+	{
+		Map<Integer, String> divisionsMap = new HashMap<>();
+		
+		for (int i = 0; i < teamsList.size(); i++) 
+		{
+			NflTeam nflteam = teamsList.get(i);
+			
+			if (!divisionsMap.containsKey(nflteam.getiDivisionID()))
+			{
+				divisionsMap.put(nflteam.getiDivisionID(), nflteam.getvDivisionName());
+			}
+		}
+		
+		List<String> divisionsList = new ArrayList<>(divisionsMap.values());
+		
+		return divisionsList;
+	}
+
+	public static void updateScoreStyles(DynamoNflGame game) 
+	{
+		if (game.getIhomeTeamScore() == null || game.getIawayTeamScore() == null)
+		{
+			game.setHomeTeamScoreStyleClass("");
+		}
+		else if (game.getIhomeTeamScore() > game.getIawayTeamScore())
+		{
+			game.setHomeTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
+		}
+		else if (game.getIhomeTeamScore() < game.getIawayTeamScore())
+		{
+			game.setHomeTeamScoreStyleClass(NflMain.RED_STYLECLASS);
+		}
+		else if (game.getIhomeTeamScore() == game.getIawayTeamScore()) //tie
+		{
+			game.setHomeTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
+		}
+		
+		if (game.getIhomeTeamScore() == null || game.getIawayTeamScore() == null)
+		{
+			game.setAwayTeamScoreStyleClass("");
+		}
+		else if (game.getIhomeTeamScore() < game.getIawayTeamScore())
+		{
+			game.setAwayTeamScoreStyleClass(NflMain.GREEN_STYLECLASS);
+		}
+		else if (game.getIhomeTeamScore() > game.getIawayTeamScore())
+		{
+			game.setAwayTeamScoreStyleClass(NflMain.RED_STYLECLASS);
+		}
+		else if (game.getIhomeTeamScore() == game.getIawayTeamScore()) //tie
+		{
+			game.setAwayTeamScoreStyleClass(NflMain.YELLOW_STYLECLASS);
+		}
+		
 	}
 }

@@ -27,6 +27,9 @@ import com.pas.pojo.OuterWeek;
 import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.model.SelectItem;
 import jakarta.inject.Named;
@@ -55,6 +58,9 @@ public class NflMain implements Serializable
 	
 	private String currentSeasonDisplay;
 	private NflSeason currentSelectedSeason;
+	private Integer selectedTeamID;
+	private Integer selectedWeekNumber;
+	private String selectedWeekDescription;
 	private List<Integer> weekNumbersList = new ArrayList<>();
 	
 	private String gameAcidSetting = "";
@@ -81,8 +87,9 @@ public class NflMain implements Serializable
 				DynamoClients dynamoClients = DynamoUtil.getDynamoClients();				
 				
 				loadNflSeasons(dynamoClients);
-				loadNflTeams(dynamoClients);
 				loadNflGames(dynamoClients);
+				loadNflTeams(dynamoClients,this.getFullNflSeasonList());
+				
 				loadNflPlayoffTeams(dynamoClients);
 				
 				this.setCurrentWeekList(calculateCurrentWeekList());
@@ -90,8 +97,6 @@ public class NflMain implements Serializable
 				
 				Integer[] weeks = new Integer[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22};
 				weekNumbersList = Arrays.asList(weeks);
-				
-				nflGameDAO.setThisSeasonsTeams(nflGameDAO.getMaxSeasonID(), null);
 			}
 		} 
 		catch (Exception e) 
@@ -110,11 +115,11 @@ public class NflMain implements Serializable
 		logger.info("Nfl Seasons read in. List size = " + nflSeasonDAO.getFullNflSeasonList().size());		
     }
 	
-	private void loadNflTeams(DynamoClients dynamoClients)  throws Exception
+	private void loadNflTeams(DynamoClients dynamoClients, List<NflSeason> nflSeasonsList)  throws Exception
 	{
 		logger.info("entering loadNflTeams");
 		nflTeamDAO = new NflTeamDAO(dynamoClients);
-		nflTeamDAO.readNflTeamsFromDB();
+		nflTeamDAO.readNflTeamsFromDB(nflSeasonsList);
 		logger.info("Nfl Teams read in. List size = " + nflTeamDAO.getFullNflTeamList().size());		
     }
 	
@@ -145,8 +150,9 @@ public class NflMain implements Serializable
             this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
             this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
             this.setCurrentWeekList(calculateCurrentWeekList());
-            nflGameDAO.setThisSeasonsTeams(null,seasonYear);
-            nflGameDAO.setMaxRegularSeasonWeekID();
+            nflTeamDAO.setThisSeasonsTeams(this.getCurrentSelectedSeason().getiSeasonID());
+            nflGameDAO.setMaxRegularSeasonWeek();
+            nflGameDAO.setSeasonGamesList(nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID()));
         } 
         catch (Exception e) 
         {
@@ -162,10 +168,78 @@ public class NflMain implements Serializable
 		try 
         {
             UIMenuItem mi = (UIMenuItem) event.getSource();
-            Integer weekNumber = (Integer) mi.getValue();
-            logger.info("week number picked: " + weekNumber);
+            Object menusel = mi.getValue();
             
-            //Armed with week number and currentselectedseason we should be fine to populate a list of this week's games
+            Integer weekNumber = 0;
+            String weekDescription = "";
+            
+            if (menusel instanceof Integer)
+            {
+            	weekNumber = (Integer) menusel;
+            	logger.info("week number picked: " + weekNumber);
+            	this.setSelectedWeekNumber(weekNumber);
+            }
+            else if (menusel instanceof String)
+            {
+            	weekDescription = (String) menusel;
+            	logger.info("week description picked: " + weekDescription);
+            	this.setSelectedWeekDescription(weekDescription);
+            }
+             
+            this.setSelectedTeamID(0); //so as to assure we don't pick a team in getGameScoresList
+            
+            ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();		   		    
+		    String targetURL = "/nfl/gameScores.xhtml";
+		    ec.redirect(targetURL);
+            logger.info("successfully redirected to: " + targetURL);
+        } 
+        catch (Exception e) 
+        {
+            logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
+        }
+	}
+	
+	public void createNextSeason()
+	{
+		try
+		{
+			nflSeasonDAO.createNextSeason();
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO,"Next season successfully created",null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+			ec.redirect("main.xhtml");
+		}
+		catch (Exception e)
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+			logger.error("createNextSeason exception: " + e.getMessage(), e);
+		}	
+		
+	}
+	
+	public void selectGameScoresTeam(ActionEvent event) 
+	{
+		logger.info("game scores team selected from menu");
+		
+		try 
+        {
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		    String teamid = ec.getRequestParameterMap().get("teamid");
+		    
+            UIMenuItem mi = (UIMenuItem) event.getSource();
+            Object menusel = mi.getValue();
+            
+            String teamname = (String) menusel;
+            logger.info("team picked: " + teamname);
+            this.setSelectedTeamID(Integer.parseInt(teamid));  
+            
+            this.setSelectedWeekNumber(0); //so as to assure we don't pick a week in getGameScoresList
+            this.setSelectedWeekDescription("");; //so as to assure we don't pick a week in getGameScoresList
+
+            String targetURL = "/nfl/gameScores.xhtml";
+		    ec.redirect(targetURL);
+            logger.info("successfully redirected to: " + targetURL);
         } 
         catch (Exception e) 
         {
@@ -264,6 +338,60 @@ public class NflMain implements Serializable
 		this.nflSeasonDAO = nflSeasonDAO;
 	}
 
+	public List<DynamoNflGame> getGameScoresList()
+	{
+		boolean byWeekNumber = false;
+		boolean byWeekDescription = false;
+		boolean byTeam = false;
+		
+		if (this.getSelectedWeekNumber() != null && this.getSelectedWeekNumber() != 0)
+		{
+			byWeekNumber = true;
+		}
+		else if (this.getSelectedWeekDescription() != null && this.getSelectedWeekDescription().trim().length() > 0)
+		{
+			byWeekDescription = true;
+		}
+		else if (this.getSelectedTeamID() != null && this.getSelectedTeamID() != 0)
+		{
+			byTeam = true;
+		}
+		
+		if (byWeekNumber)
+		{
+			return nflGameDAO.getGameScoresList("byWeek",this.getSelectedWeekNumber());
+		}
+		else if (byTeam)
+		{
+			return nflGameDAO.getGameScoresList("byTeam", this.getSelectedTeamID());
+		}
+		else //must be a playoff week selection...
+		{
+			logger.debug("going by week description - must have selected a playoff week " + byWeekDescription);
+			Integer maxRegSeasonWeekNum = nflGameDAO.getMaxRegularSeasonWeekNumber();
+			if (this.getSelectedWeekDescription().equalsIgnoreCase(Utils.WILD_CARD))
+			{
+				return nflGameDAO.getGameScoresList("byWeek",maxRegSeasonWeekNum + 1);
+			}
+			else if (this.getSelectedWeekDescription().equalsIgnoreCase(Utils.DIVISIONALS))
+			{
+				return nflGameDAO.getGameScoresList("byWeek",maxRegSeasonWeekNum + 2);
+			}
+			else if (this.getSelectedWeekDescription().equalsIgnoreCase(Utils.CONFCHAMPIONSHIPS))
+			{
+				return nflGameDAO.getGameScoresList("byWeek",maxRegSeasonWeekNum + 3);
+			}
+			else if (this.getSelectedWeekDescription().equalsIgnoreCase(Utils.SUPERBOWL))
+			{
+				return nflGameDAO.getGameScoresList("byWeek",maxRegSeasonWeekNum + 4);
+			}
+			else //can't be anything else
+			{
+				return new ArrayList<DynamoNflGame>();
+			}
+		}
+	}
+	
 	public List<DynamoNflGame> getSeasonGamesList()
 	{
 		return nflGameDAO.getSeasonGamesList();
@@ -309,6 +437,11 @@ public class NflMain implements Serializable
 		return Utils.getDecadesList();
 	}
 
+	public List<String> getDivisionsList()
+	{
+		return Utils.getDivisionsList(this.getTeamsListCurrentSeason());
+	}
+	
 	public List<OuterWeek> getOuterWeeksList()
 	{
 		return Utils.getOuterWeeksList();
@@ -377,9 +510,14 @@ public class NflMain implements Serializable
 		return nflGameDAO.getGameTypesList();
 	}
 	
-	public List<SelectItem> getTeamsList() 
+	public List<SelectItem> getTeamsDropdownListCurrentSeason() 
 	{		
-		return nflGameDAO.getTeamsList();
+		return nflTeamDAO.getTeamsDropdownListCurrentSeason();
+	}
+	
+	public List<NflTeam> getTeamsListCurrentSeason() 
+	{		
+		return nflTeamDAO.getTeamsListCurrentSeason();
 	}
 	
 	public List<InnerWeek> getCurrentWeekSecondHalfList() 
@@ -478,19 +616,19 @@ public class NflMain implements Serializable
 		{
 			weekToAdd = maxRegSeasonWeekid;
 		}
-		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Wild Card Round"))
+		else if (gameTypeDescription.equalsIgnoreCase(Utils.WILD_CARD))
 		{
 			weekToAdd = maxRegSeasonWeekid + 1;
 		}
-		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Divisional Round"))
+		else if (gameTypeDescription.equalsIgnoreCase(Utils.DIVISIONALS))
 		{
 			weekToAdd = maxRegSeasonWeekid + 2;
 		}
-		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Conference Finals"))
+		else if (gameTypeDescription.equalsIgnoreCase(Utils.CONFCHAMPIONSHIPS))
 		{
 			weekToAdd = maxRegSeasonWeekid + 3;
 		}
-		else if (gameTypeDescription.equalsIgnoreCase("Playoffs: Super Bowl"))
+		else if (gameTypeDescription.equalsIgnoreCase(Utils.SUPERBOWL))
 		{
 			weekToAdd = maxRegSeasonWeekid + 4;
 		}
@@ -512,6 +650,30 @@ public class NflMain implements Serializable
 
 	public void setRenderGameId(boolean renderGameId) {
 		this.renderGameId = renderGameId;
+	}
+
+	public Integer getSelectedWeekNumber() {
+		return selectedWeekNumber;
+	}
+
+	public void setSelectedWeekNumber(Integer selectedWeekNumber) {
+		this.selectedWeekNumber = selectedWeekNumber;
+	}
+
+	public String getSelectedWeekDescription() {
+		return selectedWeekDescription;
+	}
+
+	public void setSelectedWeekDescription(String selectedWeekDescription) {
+		this.selectedWeekDescription = selectedWeekDescription;
+	}
+
+	public Integer getSelectedTeamID() {
+		return selectedTeamID;
+	}
+
+	public void setSelectedTeamID(Integer selectedTeamID) {
+		this.selectedTeamID = selectedTeamID;
 	}
 	
 }

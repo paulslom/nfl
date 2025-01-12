@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import com.pas.dynamodb.DynamoClients;
 import com.pas.dynamodb.DynamoNflGame;
 import com.pas.util.GameComparator;
-import com.pas.util.TeamComparator;
 
 import jakarta.faces.model.SelectItem;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -38,7 +37,6 @@ public class NflGameDAO implements Serializable
 	private List<DynamoNflGame> fullNflGameList = new ArrayList<>();
 	private List<DynamoNflGame> seasonGamesList = new ArrayList<>();
 	private List<SelectItem> gameTypesList = new ArrayList<>();
-	private List<SelectItem> teamsList = new ArrayList<>();
 	
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<DynamoNflGame> nflGamesTable;
@@ -46,6 +44,7 @@ public class NflGameDAO implements Serializable
 	
 	private int maxSeasonID = 0;
 	private int maxRegularSeasonWeekID = 0;
+	private int maxRegularSeasonWeekNumber = 0;
 	
 	public NflGameDAO(DynamoClients dynamoClients2) 
 	{		
@@ -84,23 +83,25 @@ public class NflGameDAO implements Serializable
 	{
 		if (dynamoNflGame.getIgameId() == null)
 		{
-			Integer currentMaxGameID = 0;
-			for (int i = 0; i < this.getFullNflGameList().size(); i++) 
-			{
-				DynamoNflGame nflGame = this.getFullNflGameList().get(i);
-				currentMaxGameID = nflGame.getIgameId();
-			}
-			dynamoNflGame.setIgameId(currentMaxGameID + 1);
+			Integer nextGameID = determineNextGameId();
+			dynamoNflGame.setIgameId(nextGameID);
 		}
-		else
-		{
-			dynamoNflGame.setIgameId(dynamoNflGame.getIgameId());
-		}
-				
+						
 		PutItemEnhancedRequest<DynamoNflGame> putItemEnhancedRequest = PutItemEnhancedRequest.builder(DynamoNflGame.class).item(dynamoNflGame).build();
 		nflGamesTable.putItem(putItemEnhancedRequest);
 			
 		return dynamoNflGame;
+	}
+
+	private Integer determineNextGameId() 
+	{
+		Integer nextGameID = 0;
+		
+		List<Integer> gameIds = this.getFullNflGamesMap().keySet().stream().collect(Collectors.toList());
+		int max = Collections.max(gameIds);
+        nextGameID = max + 1;
+        
+		return nextGameID;
 	}
 
 	public void updateNflGame(DynamoNflGame dynamoNflgame)  throws Exception
@@ -189,73 +190,64 @@ public class NflGameDAO implements Serializable
 			si.setValue(key);
 			this.getGameTypesList().add(si);
         }
-				
-		//establish this season's teams.  Default to max season id
-		setThisSeasonsTeams(this.getMaxSeasonID(), null);
 		
-		setMaxRegularSeasonWeekID();
+		setMaxRegularSeasonWeek();
 	}
-	
-	public void setMaxRegularSeasonWeekID()
+
+	public void setMaxRegularSeasonWeek()
 	{
 		int maxweekid = 0;
+		int maxweeknumber = 0;
+		
 		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
 		{
 			DynamoNflGame nflgame = this.getSeasonGamesList().get(i);
 			if (nflgame.getSgameTypeDesc().equalsIgnoreCase("Regular Season") && nflgame.getIweekId() > maxweekid)
 			{
 				maxweekid = nflgame.getIweekId();
+				maxweeknumber = nflgame.getIweekNumber();
 			}
 		}
 		
 		this.setMaxRegularSeasonWeekID(maxweekid);
+		this.setMaxRegularSeasonWeekNumber(maxweeknumber);
 	}
 	
-	public void setThisSeasonsTeams(Integer seasonID, String seasonYear)
+	public List<DynamoNflGame> getGameScoresList(String byTeamOrWeek, Integer weekNumberOrTeamID) 
 	{
-		this.getTeamsList().clear();
+		List<DynamoNflGame> returnList = new ArrayList<>();
 		
-		Map<Integer,String> teamsMapBySeason = new HashMap<>(); 
+		int tabCount = 1;
 		
-		for (int i = 0; i < this.getFullNflGameList().size(); i++) 
-		{			
-			DynamoNflGame nflgame = this.getFullNflGameList().get(i);
-			
-			if (seasonID == null)
-			{
-				if (nflgame.getcYear().equalsIgnoreCase(seasonYear))
-				{
-				}
-				else
-				{
-					continue;
-				}
-			}
-			else
-			{
-				if (nflgame.getiSeasonId() != seasonID)
-				{
-					continue;
-				}
-			}
-						
-			if (!teamsMapBySeason.containsKey(nflgame.getIhomeTeamID()))
-			{				
-				teamsMapBySeason.put(nflgame.getIhomeTeamID(), nflgame.getHometeamName());
-			}		
-		}
-		
-		for (Integer key : teamsMapBySeason.keySet()) 
+		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
 		{
-			SelectItem si = new SelectItem();
-			si.setLabel(teamsMapBySeason.get(key));
-			si.setValue(key);
-			this.getTeamsList().add(si);
-        }
+			DynamoNflGame game = this.getSeasonGamesList().get(i);
+			
+			if (byTeamOrWeek.equalsIgnoreCase("byWeek"))
+			{
+				if (game.getIweekNumber() == weekNumberOrTeamID)
+				{
+					game.setTabIndexAwayTeam(tabCount++);
+					game.setTabIndexHomeTeam(tabCount++);
+					returnList.add(game);
+				}
+			}
+			else if (byTeamOrWeek.equalsIgnoreCase("byTeam"))
+			{
+				if (game.getIhomeTeamID() == weekNumberOrTeamID
+				||  game.getIawayTeamID() == weekNumberOrTeamID)
+				{
+					game.setTabIndexAwayTeam(tabCount++);
+					game.setTabIndexHomeTeam(tabCount++);
+					returnList.add(game);
+				}
+			}
+			
+		} 
 		
-		Collections.sort(this.getTeamsList(), new TeamComparator());
+		return returnList;
 	}
-	
+		
 	private void refreshListsAndMaps(String function, DynamoNflGame dynamoNflgame)
 	{
 		Integer seasonId = dynamoNflgame.getiSeasonId();
@@ -291,7 +283,7 @@ public class NflGameDAO implements Serializable
 		{
 			this.getFullNflGamesMap().remove(dynamoNflgame.getIgameId());		
 			this.getFullNflGamesMap().put(dynamoNflgame.getIgameId(), dynamoNflgame);	
-			List<DynamoNflGame> newList = this.getGamesMapBySeason().get(seasonId);
+			List<DynamoNflGame> newList = new ArrayList<>(this.getGamesMapBySeason().get(seasonId));
 			
 			List<DynamoNflGame> found = new ArrayList<DynamoNflGame>();
 			List<DynamoNflGame> seasonGamesList = this.getGamesMapBySeason().get(seasonId);
@@ -363,14 +355,6 @@ public class NflGameDAO implements Serializable
 		this.gameTypesList = gameTypesList;
 	}
 
-	public List<SelectItem> getTeamsList() {
-		return teamsList;
-	}
-
-	public void setTeamsList(List<SelectItem> teamsList) {
-		this.teamsList = teamsList;
-	}
-
 	public int getMaxSeasonID() {
 		return maxSeasonID;
 	}
@@ -411,6 +395,14 @@ public class NflGameDAO implements Serializable
 
 	public void setMaxRegularSeasonWeekID(int maxRegularSeasonWeekID) {
 		this.maxRegularSeasonWeekID = maxRegularSeasonWeekID;
+	}
+
+	public int getMaxRegularSeasonWeekNumber() {
+		return maxRegularSeasonWeekNumber;
+	}
+
+	public void setMaxRegularSeasonWeekNumber(int maxRegularSeasonWeekNumber) {
+		this.maxRegularSeasonWeekNumber = maxRegularSeasonWeekNumber;
 	}
 
 }

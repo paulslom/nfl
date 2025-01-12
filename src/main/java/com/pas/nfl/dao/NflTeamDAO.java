@@ -14,9 +14,13 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pas.beans.NflSeason;
 import com.pas.beans.NflTeam;
 import com.pas.dynamodb.DynamoClients;
+import com.pas.util.TeamComparator;
+import com.pas.util.TeamComparatorByDivision;
 
+import jakarta.faces.model.SelectItem;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
@@ -29,6 +33,10 @@ public class NflTeamDAO implements Serializable
 	private Map<Integer,NflTeam> fullNflTeamsMap = new HashMap<>(); 
 	private List<NflTeam> fullNflTeamList = new ArrayList<>();
 	
+	private List<SelectItem> teamsDropdownListCurrentSeason = new ArrayList<>();
+	private Map<Integer,List<NflTeam>> teamsMapBySeason = new HashMap<>(); 	
+	private List<NflTeam> teamsListCurrentSeason = new ArrayList<>();	
+
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<NflTeam> nflTeamsTable;
 	private static final String AWS_TABLE_NAME = "nflteams";
@@ -97,7 +105,7 @@ public class NflTeamDAO implements Serializable
 		logger.debug("update nflteam table complete");		
 	}
 	
-	public void readNflTeamsFromDB() 
+	public void readNflTeamsFromDB(List<NflSeason> nflSeasonsList) 
     {
 		Iterator<NflTeam> results = nflTeamsTable.scan().items().iterator();
 		
@@ -118,8 +126,78 @@ public class NflTeamDAO implements Serializable
 		   {
 		      return o1.getiTeamID().compareTo(o2.getiTeamID());
 		   }
-		});
+		});		
+
+		int maxSeasonId = setAllSeasonsTeams(nflSeasonsList);
+		
+		//establish this season's teams.  Default to max season id
+		setThisSeasonsTeams(maxSeasonId);
 	}
+	
+	private int setAllSeasonsTeams(List<NflSeason> nflSeasonsList) 
+	{
+		int maxSeasonID = 0;
+		
+		for (int i = 0; i < nflSeasonsList.size(); i++) 
+		{			
+			NflSeason nflseason = nflSeasonsList.get(i);
+			Integer iSeasonID = nflseason.getiSeasonID();
+			
+			if (iSeasonID > maxSeasonID)
+			{
+				maxSeasonID = iSeasonID;
+			}
+			
+			List<NflTeam> nflTeamList = new ArrayList<>();
+			
+			for (int j = 0; j < this.getFullNflTeamList().size(); j++) 
+			{			
+				NflTeam nflteam = this.getFullNflTeamList().get(j);
+				boolean addThisTeam = false;
+				
+				if (iSeasonID >= nflteam.getiFirstSeasonIDAsTeam()
+				&&  nflteam.getiLastSeasonIDAsTeam() == 0)
+				{
+					addThisTeam = true;
+				}
+				else if (iSeasonID >= nflteam.getiFirstSeasonIDAsTeam()
+				&&  iSeasonID <= nflteam.getiLastSeasonIDAsTeam())
+				{
+					addThisTeam = true;								
+				}
+				
+				if (addThisTeam)
+				{
+					nflTeamList.add(nflteam);		
+				}
+			}
+			
+			this.getTeamsMapBySeason().put(iSeasonID, nflTeamList);			
+		}		
+		
+		return maxSeasonID;
+	}
+	
+	public void setThisSeasonsTeams(Integer seasonID)
+	{
+		this.getTeamsListCurrentSeason().clear();
+		this.getTeamsDropdownListCurrentSeason().clear();
+		
+		this.setTeamsListCurrentSeason(this.getTeamsMapBySeason().get(seasonID));
+		
+		for (int j = 0; j < this.getTeamsListCurrentSeason().size(); j++) 
+		{			
+			NflTeam nflteam = this.getTeamsListCurrentSeason().get(j);
+			SelectItem si = new SelectItem();
+			si.setLabel(nflteam.getFullTeamName());
+			si.setValue(nflteam.getiTeamID());
+			this.getTeamsDropdownListCurrentSeason().add(si);
+        }
+		
+		Collections.sort(this.getTeamsDropdownListCurrentSeason(), new TeamComparator());
+		Collections.sort(this.getTeamsListCurrentSeason(), new TeamComparatorByDivision());
+	}
+	
 	
 	private void refreshListsAndMaps(String function, NflTeam nflteam)
 	{
@@ -172,6 +250,30 @@ public class NflTeamDAO implements Serializable
 	public NflTeam getTeamByTeamID(int teamId) 
 	{
 		return this.getFullNflTeamsMap().get(teamId);
+	}
+
+	public List<NflTeam> getTeamsListCurrentSeason() {
+		return teamsListCurrentSeason;
+	}
+
+	public void setTeamsListCurrentSeason(List<NflTeam> teamsListCurrentSeason) {
+		this.teamsListCurrentSeason = teamsListCurrentSeason;
+	}
+
+	public List<SelectItem> getTeamsDropdownListCurrentSeason() {
+		return teamsDropdownListCurrentSeason;
+	}
+
+	public void setTeamsDropdownListCurrentSeason(List<SelectItem> teamsDropdownListCurrentSeason) {
+		this.teamsDropdownListCurrentSeason = teamsDropdownListCurrentSeason;
+	}
+
+	public Map<Integer, List<NflTeam>> getTeamsMapBySeason() {
+		return teamsMapBySeason;
+	}
+
+	public void setTeamsMapBySeason(Map<Integer, List<NflTeam>> teamsMapBySeason) {
+		this.teamsMapBySeason = teamsMapBySeason;
 	}
 
 

@@ -112,7 +112,7 @@
         		     <h:outputText id="awayTeamId" value="#{pc_NflGame.selectedGame.awayteamName}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
         		     
         		     <p:selectOneMenu id="awayTeamDropdownId" value="#{pc_NflGame.selectedGame.iawayTeamID}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
-						 <f:selectItems value="#{pc_NflMain.teamsList}" />
+						 <f:selectItems value="#{pc_NflMain.teamsDropdownListCurrentSeason}" />
 					 </p:selectOneMenu>	  
 		          </td>
         	        		
@@ -128,7 +128,7 @@
 	              	 <h:outputText id="homeTeamId" value="#{pc_NflGame.selectedGame.hometeamName}" rendered="#{!pc_NflMain.renderGameUpdateFields}"/> 	
         		     
         		     <p:selectOneMenu id="homeTeamDropdownId" value="#{pc_NflGame.selectedGame.ihomeTeamID}" required="true" rendered="#{pc_NflMain.renderGameUpdateFields}">
-						 <f:selectItems value="#{pc_NflMain.teamsList}" />
+						 <f:selectItems value="#{pc_NflMain.teamsDropdownListCurrentSeason}" />
 					 </p:selectOneMenu>	  
 		          </td>
         	        		
