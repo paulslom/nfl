@@ -37,7 +37,7 @@ public class Utils
 	public static String DIVISIONALS = "Playoffs: Divisional Round";
 	public static String CONFCHAMPIONSHIPS = "Playoffs: Conference Finals";
 	public static String SUPERBOWL = "Playoffs: Super Bowl";
-	
+		
 	public static String getLastYearsLastDayDate() 
 	{
 	    Calendar prevYear = Calendar.getInstance();
@@ -331,4 +331,6 @@ public class Utils
 		}
 		
 	}
+	
+	
 }

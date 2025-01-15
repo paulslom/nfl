@@ -20,9 +20,9 @@ public class DraftComparator implements Comparator<Draft>
 	
 	public int compare(Draft team1, Draft team2)
 	{
-		log.debug("inside draft comparator");
-		log.debug("Team 1 is = " + team1.getTeamName());
-		log.debug("Team 2 is = " + team2.getTeamName());
+		log.info("inside draft comparator");
+		log.info("Team 1 is = " + team1.getTeamName());
+		log.info("Team 2 is = " + team2.getTeamName());
 				
 		//Rule 1: if you are a playoff team (indicated by playoff round exit > 0),
 		//        then you are better than a non-playoff team and therefore
@@ -32,7 +32,7 @@ public class DraftComparator implements Comparator<Draft>
 		
 		if (playoffCompare != ITEMS_ARE_EQUAL) //one team further in playoffs than another; or one team made it, another didn't
 		{
-			log.debug("Rule 1 invoked; either one team further in playoffs than another; or one team made it, another did not");
+			log.info("Rule 1 invoked; either one team further in playoffs than another; or one team made it, another did not");
 			return playoffCompare; 
 		}
 				
@@ -52,9 +52,9 @@ public class DraftComparator implements Comparator<Draft>
 		
 		if (wltRecordCompare != 0) //records are not equal
 		{
-			log.debug("Rule 2 invoked; regular season records different.");
-			log.debug(team1.getTeamName() + ": " + team1.getWins() + "-" + team1.getLosses() + "-" + team1.getTies());
-			log.debug(team2.getTeamName() + ": " + team2.getWins() + "-" + team2.getLosses() + "-" + team2.getTies());
+			log.info("Rule 2 invoked; regular season records different.");
+			log.info(team1.getTeamName() + ": " + team1.getWins() + "-" + team1.getLosses() + "-" + team1.getTies());
+			log.info(team2.getTeamName() + ": " + team2.getWins() + "-" + team2.getLosses() + "-" + team2.getTies());
 			return wltRecordCompare; 
 		}
 		
@@ -71,9 +71,9 @@ public class DraftComparator implements Comparator<Draft>
 		
 		int scheduleStrengthCompare = team1OpponentWinningPct.compareTo(team2OpponentWinningPct);
 		
-		log.debug("Rule 3 invoked; strength of schedule");
-		log.debug(team1.getTeamName() + ": " + team1.getOpponentWins() + "-" + team1.getOpponentLosses() + "-" + team1.getOpponentTies());
-		log.debug(team2.getTeamName() + ": " + team2.getOpponentWins() + "-" + team2.getOpponentLosses() + "-" + team2.getOpponentTies());
+		log.info("Rule 3 invoked; strength of schedule");
+		log.info(team1.getTeamName() + ": " + team1.getOpponentWins() + "-" + team1.getOpponentLosses() + "-" + team1.getOpponentTies());
+		log.info(team2.getTeamName() + ": " + team2.getOpponentWins() + "-" + team2.getOpponentLosses() + "-" + team2.getOpponentTies());
 						
 		return scheduleStrengthCompare; 
 	}

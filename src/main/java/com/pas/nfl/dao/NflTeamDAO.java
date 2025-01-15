@@ -276,5 +276,34 @@ public class NflTeamDAO implements Serializable
 		this.teamsMapBySeason = teamsMapBySeason;
 	}
 
+	public List<NflTeam> getAfcTeamsList() 
+	{
+		//teams list current season is already sorted by division
+		List<NflTeam> afcTeamsList = new ArrayList<>();
+		for (int i = 0; i < this.getTeamsListCurrentSeason().size(); i++) 
+		{
+			NflTeam nflteam = this.getTeamsListCurrentSeason().get(i);
+			if (nflteam.getvConferenceName().equalsIgnoreCase("AFC"))
+			{
+				afcTeamsList.add(nflteam);
+			}
+		} 
+		return afcTeamsList;
+	}
+
+	public List<NflTeam> getNfcTeamsList() 
+	{
+		//teams list current season is already sorted by division
+		List<NflTeam> nfcTeamsList = new ArrayList<>();
+		for (int i = 0; i < this.getTeamsListCurrentSeason().size(); i++) 
+		{
+			NflTeam nflteam = this.getTeamsListCurrentSeason().get(i);
+			if (nflteam.getvConferenceName().equalsIgnoreCase("NFC"))
+			{
+				nfcTeamsList.add(nflteam);
+			}
+		} 
+		return nfcTeamsList;
+	}
 
 }

@@ -55,7 +55,7 @@ public class NflMain implements Serializable
 	private List<InnerWeek> currentWeekList = new ArrayList<>();
 	private List<InnerWeek> currentWeekFirstHalfList = new ArrayList<>();
 	private List<InnerWeek> currentWeekSecondHalfList = new ArrayList<>();
-	
+		
 	private String currentSeasonDisplay;
 	private NflSeason currentSelectedSeason;
 	private Integer selectedTeamID;
@@ -199,22 +199,42 @@ public class NflMain implements Serializable
         }
 	}
 	
-	public void createNextSeason()
+	public String createNextSeason()
 	{
 		try
 		{
 			nflSeasonDAO.createNextSeason();
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO,"Next season successfully created",null);
 			FacesContext.getCurrentInstance().addMessage(null, msg); 
-			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-			ec.redirect("main.xhtml");
 		}
 		catch (Exception e)
 		{
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
 			FacesContext.getCurrentInstance().addMessage(null, msg); 
 			logger.error("createNextSeason exception: " + e.getMessage(), e);
-		}	
+		}
+		
+		return "";
+		
+	}
+	
+	public String importScheduleData()
+	{
+		try
+		{
+			String nextYear = nflSeasonDAO.getMaxSeason().getcYear();
+			nflGameDAO.importNextSeasonSchedule(nextYear);
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO,"Games successfully imported",null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+		}
+		catch (Exception e)
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+			logger.error("importScheduleData exception: " + e.getMessage(), e);
+		}
+		
+		return "";
 		
 	}
 	
@@ -246,6 +266,8 @@ public class NflMain implements Serializable
             logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
         }
 	}
+	
+	
 			
 	private List<InnerWeek> calculateCurrentWeekList() 
 	{		
@@ -520,6 +542,11 @@ public class NflMain implements Serializable
 		return nflTeamDAO.getTeamsListCurrentSeason();
 	}
 	
+	public List<NflPlayoffTeam> getPlayoffTeamsList() 
+	{		
+		return nflPlayoffTeamDAO.getPlayoffTeamsList();
+	}
+	
 	public List<InnerWeek> getCurrentWeekSecondHalfList() 
 	{		
 		return currentWeekSecondHalfList;
@@ -576,8 +603,8 @@ public class NflMain implements Serializable
 		
 	}
 
-
-	public List<Integer> getWeekNumbersList() {
+	public List<Integer> getWeekNumbersList() 
+	{
 		return weekNumbersList;
 	}
 
@@ -675,5 +702,16 @@ public class NflMain implements Serializable
 	public void setSelectedTeamID(Integer selectedTeamID) {
 		this.selectedTeamID = selectedTeamID;
 	}
+
+	public List<NflTeam> getAfcTeamsList() 
+	{
+		return nflTeamDAO.getAfcTeamsList();
+	}
+
+	public List<NflTeam> getNfcTeamsList() 
+	{
+		return nflTeamDAO.getNfcTeamsList();
+	}
+
 	
 }

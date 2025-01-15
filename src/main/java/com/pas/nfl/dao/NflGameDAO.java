@@ -1,5 +1,8 @@
 package com.pas.nfl.dao;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -134,8 +137,7 @@ public class NflGameDAO implements Serializable
 		
 		while (results.hasNext()) 
         {
-			DynamoNflGame dynamoNflGame = results.next();
-			
+			DynamoNflGame dynamoNflGame = results.next();			
             this.getFullNflGameList().add(dynamoNflGame);            
         }
 		
@@ -313,6 +315,21 @@ public class NflGameDAO implements Serializable
 		Collections.sort(this.getSeasonGamesList(), new GameComparator());			
 	}
 	
+	public void importNextSeasonSchedule(String year) throws Exception
+	{
+	    InputStream is = getClass().getClassLoader().getResourceAsStream("data/NFLScheduleData" + year + ".csv"); 
+
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+	    String line;
+	    
+	    while ((line = reader.readLine()) != null) 
+	    {
+	       logger.info("line - " + line);
+	    }
+	    
+	    reader.close();		
+	}
+	
 	public List<DynamoNflGame> getFullNflGameList() 
 	{
 		return fullNflGameList;
@@ -404,5 +421,7 @@ public class NflGameDAO implements Serializable
 	public void setMaxRegularSeasonWeekNumber(int maxRegularSeasonWeekNumber) {
 		this.maxRegularSeasonWeekNumber = maxRegularSeasonWeekNumber;
 	}
+
+	
 
 }

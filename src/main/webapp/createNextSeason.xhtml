@@ -1,0 +1,52 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">     
+     
+        <h:form id="createNextSeasonForm">  
+                        
+	        <b>Create next season</b>
+		
+		    <p:messages id="facesMessagesID" showDetail="false"/>
+		
+			<table>
+		
+				<tr>
+				  <td align="center">
+				    2 buttons on this form.  Create new season creates a row in the seasons table for the next year.  Run this first  <br/>
+				    Second button imports the schedule from a .csv file that you must create and import into the resources/data folder. <br/>
+					That file is created from downloading the schedule from <a href="https://fftoday.com/nfl/schedule.php">Here</a>  <br/>
+					This download should be brought into a spreadsheet from which you can create the csv file.  Then button 2 can be run to update the nflgame table. <br/>
+				  </td>
+				</tr> 
+				
+				<tr>
+				  <td align="center">
+				      <p:commandButton id="createId" 				   
+						  value="Create Next Season" 						    
+						  action="#{pc_NflMain.createNextSeason}"
+						  update="createNextSeasonForm">
+					  </p:commandButton>
+				  </td>
+				  <td align="center">
+				      <p:commandButton id="importId" 				   
+						  value="Import Games" 						    
+						  action="#{pc_NflMain.importScheduleData}"
+						  update="createNextSeasonForm">
+					  </p:commandButton>
+				  </td>
+				</tr> 		
+			
+			</table>
+			
+		</h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

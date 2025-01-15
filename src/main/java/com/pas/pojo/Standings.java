@@ -17,6 +17,10 @@ public class Standings
 	private String strengthOfVictoryPct;
 	private String gamesRemaining;
 	
+	public String toString()
+    {
+    	return "team: " + this.getTeamName() + " wins: " + this.getWins() + " losses: " + this.getLosses();
+    }
 	
 	public String getGamesRemaining()
 	{

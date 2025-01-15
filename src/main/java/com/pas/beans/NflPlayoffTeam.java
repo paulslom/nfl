@@ -16,12 +16,19 @@ public class NflPlayoffTeam implements Serializable
 	private static Logger logger = LogManager.getLogger(NflPlayoffTeam.class);	
 	
 	private String playoffTeamID;
+	private String seasonYear;
 	private Integer iseasonId;
 	private Integer iConferenceId;
     private Integer iTeamID;
+    private String teamName;
     private Integer iSeed;
     private Boolean bBye;
     
+    public String toString()
+	{
+		return seasonYear + ": " + teamName + " " + iSeed;
+	}
+
 	public Integer getIseasonId() 
 	{
 		logger.debug("returning iseasonId");
@@ -61,6 +68,22 @@ public class NflPlayoffTeam implements Serializable
 	}
 	public void setPlayoffTeamID(String playoffTeamID) {
 		this.playoffTeamID = playoffTeamID;
+	}
+
+	public String getSeasonYear() {
+		return seasonYear;
+	}
+
+	public void setSeasonYear(String seasonYear) {
+		this.seasonYear = seasonYear;
+	}
+
+	public String getTeamName() {
+		return teamName;
+	}
+
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
 	}
    	
 }

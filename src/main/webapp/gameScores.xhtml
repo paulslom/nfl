@@ -12,6 +12,10 @@
      
              <p:messages id="facesMessagesID" showDetail="false"/>
             
+             <p:blockUI block="menuForm" widgetVar="blockWidgetVar"> 
+		    	<p:graphicImage value="/images/wait.gif"/>  
+		     </p:blockUI> 
+	
             <table>
          		
 			   <tr>
@@ -72,7 +76,9 @@
 			   		   <p:commandButton id="UpdateId" 				   
 						    value="Update" 						    
 						    action="#{pc_NflGame.changeGameScores}"
-						    update="gameScoresForm">
+						    update="gameScoresForm"
+						    onclick="PF('blockWidgetVar').show()" 
+						    oncomplete="PF('block').hide()">
 					  </p:commandButton>
 					  
 			   	  </td>

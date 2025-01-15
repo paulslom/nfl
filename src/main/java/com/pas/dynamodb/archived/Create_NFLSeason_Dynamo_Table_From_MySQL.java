@@ -1,4 +1,4 @@
-package com.pas.dynamodb;
+package com.pas.dynamodb.archived;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,8 +11,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.pas.beans.NflTeam;
-import com.pas.nfl.dao.TeamsRowMapper;
+import com.pas.beans.NflSeason;
+import com.pas.dynamodb.DynamoClients;
+import com.pas.dynamodb.DynamoUtil;
+import com.pas.nfl.dao.SeasonRowMapper;
+import com.pas.nfl.dao.TblSeason;
 
 import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -23,11 +26,11 @@ import software.amazon.awssdk.services.dynamodb.model.DescribeTableResponse;
 import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
-public class Create_NFLTeam_Dynamo_Table_From_MySQL
+public class Create_NFLSeason_Dynamo_Table_From_MySQL
 {
-	private static Logger logger = LogManager.getLogger(Create_NFLTeam_Dynamo_Table_From_MySQL.class); //log4j for Logging 
+	private static Logger logger = LogManager.getLogger(Create_NFLSeason_Dynamo_Table_From_MySQL.class); //log4j for Logging 
 	
-	private static String AWS_TABLE_NAME = "nflteams";
+	private static String AWS_TABLE_NAME = "nflseasons";
 	
     public static void main(String[] args) throws Exception
     { 
@@ -37,8 +40,8 @@ public class Create_NFLTeam_Dynamo_Table_From_MySQL
          {
     		 DynamoClients dynamoClients = DynamoUtil.getDynamoClients();
     
-    		 List<NflTeam> teamsList = getTeamsFromMySQLDB();	
-    		 loadTable(dynamoClients, teamsList);
+    		 List<TblSeason> seasonsList = getSeasonsFromMySQLDB();	
+    		 loadTable(dynamoClients, seasonsList);
 	       	
 	    	 DynamoUtil.stopDynamoServer();
 	    	
@@ -51,20 +54,16 @@ public class Create_NFLTeam_Dynamo_Table_From_MySQL
 		System.exit(1);
 	}
 
-    private static List<NflTeam> getTeamsFromMySQLDB() 
+    private static List<TblSeason> getSeasonsFromMySQLDB() 
 	{
 		MysqlDataSource ds = getMySQLDatasource();
     	JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);    
-    	String sql = "select team.iTeamID, team.iDivisionID, team.vTeamCity, team.vTeamNickname, team.cTeamCityAbbr,"
-    			+ "	team.iFirstSeasonIDAsTeam, team.iLastSeasonIDAsTeam, team.sPictureFile,"
-    			+ "    divis.iConferenceID, divis.vDivisionLifespan, divis.vDivisionName, conf.vConferenceName"
-    			+ "  from tblteam team inner join tbldivision divis on team.idivisionid = divis.idivisionid"
-    			+ "     inner join tblconference conf on divis.iConferenceID = conf.iConferenceID";		 
-    	List<NflTeam> teamsList = jdbcTemplate.query(sql, new TeamsRowMapper());
-		return teamsList;
+    	String sql = "select * from tblseason order by cyear";		 
+    	List<TblSeason> seasonList = jdbcTemplate.query(sql, new SeasonRowMapper());
+		return seasonList;
 	}
    
-    private static void loadTable(DynamoClients dynamoClients, List<NflTeam> teamsList) throws Exception 
+    private static void loadTable(DynamoClients dynamoClients, List<TblSeason> seasonsList) throws Exception 
     {
         //Delete the table in DynamoDB Local if it exists.  If not, just catch the exception and move on
         try
@@ -77,34 +76,41 @@ public class Create_NFLTeam_Dynamo_Table_From_MySQL
         }
         
         // Create a table in DynamoDB Local
-        DynamoDbTable<NflTeam> teamTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
+        DynamoDbTable<NflSeason> seasonTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
 
         // Insert data into the table
     	logger.info("Inserting data into the table:" + AWS_TABLE_NAME);
          
-        if (teamsList == null)
+        if (seasonsList == null)
         {
-        	logger.error("teams list is Empty - can't do anything more so exiting");
+        	logger.error("seasons list is Empty - can't do anything more so exiting");
         }
         else
         {
-        	for (int i = 0; i < teamsList.size(); i++) 
+        	for (int i = 0; i < seasonsList.size(); i++) 
         	{
-        		NflTeam nflTeam = teamsList.get(i);
-				teamTable.putItem(nflTeam); 
+        		NflSeason nflSeason = new NflSeason();
+            	TblSeason tblSeason = seasonsList.get(i);
+				
+				nflSeason.setiSeasonID(tblSeason.getIseasonId());
+				nflSeason.setcYear(tblSeason.getCyear());
+				nflSeason.setvSuperBowl(tblSeason.getVsuperBowl());
+				nflSeason.setiConferencePlayoffTeams(tblSeason.getiConferencePlayoffTeams());
+				nflSeason.setiPlayoffByesByConf(tblSeason.getiPlayoffByesByConf());
+				seasonTable.putItem(nflSeason); 
 			}           
         }        
 	}
    
-    private static DynamoDbTable<NflTeam> createTable(DynamoDbEnhancedClient ddbEnhancedClient, DynamoDbClient ddbClient) 
+    private static DynamoDbTable<NflSeason> createTable(DynamoDbEnhancedClient ddbEnhancedClient, DynamoDbClient ddbClient) 
     {
-        DynamoDbTable<NflTeam> teamTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflTeam.class));
+        DynamoDbTable<NflSeason> seasonTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflSeason.class));
         
         // Create the DynamoDB table.  If it exists, it'll throw an exception
         
         try
         {
-	        teamTable.createTable(builder -> builder.build());
+	        seasonTable.createTable(builder -> builder.build());
         }
         catch (ResourceInUseException riue)
         {
@@ -128,13 +134,13 @@ public class Create_NFLTeam_Dynamo_Table_From_MySQL
             logger.info(AWS_TABLE_NAME + " table was created.");
         }        
         
-        return teamTable;
+        return seasonTable;
     }    
     
     private static void deleteTable(DynamoDbEnhancedClient ddbEnhancedClient) throws Exception
     {
-    	DynamoDbTable<NflTeam> teamTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflTeam.class));
-       	teamTable.deleteTable();		
+    	DynamoDbTable<NflSeason> seasonTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflSeason.class));
+       	seasonTable.deleteTable();		
 	}
 
     private static MysqlDataSource getMySQLDatasource()

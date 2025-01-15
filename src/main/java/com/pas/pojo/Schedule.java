@@ -3,7 +3,7 @@ package com.pas.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TempScheduleRow
+public class Schedule
 {
 	private String team;
 	private List<TempOpponent> opponents = new ArrayList<TempOpponent>();

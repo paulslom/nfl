@@ -11,6 +11,8 @@ public class TblPlayoffTeams implements Serializable
     private Integer iTeamID;
     private Integer iSeed;
     private Boolean bBye;
+    private String seasonYear;
+    private String teamName;
 
     public Integer getIseasonId() {
         return this.iseasonId;
@@ -50,6 +52,22 @@ public class TblPlayoffTeams implements Serializable
 
 	public void setiConferenceId(Integer iConferenceId) {
 		this.iConferenceId = iConferenceId;
+	}
+
+	public String getSeasonYear() {
+		return seasonYear;
+	}
+
+	public void setSeasonYear(String seasonYear) {
+		this.seasonYear = seasonYear;
+	}
+
+	public String getTeamName() {
+		return teamName;
+	}
+
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
 	}
 
    

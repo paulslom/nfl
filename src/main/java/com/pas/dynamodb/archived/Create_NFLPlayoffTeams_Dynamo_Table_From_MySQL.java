@@ -1,36 +1,39 @@
-package com.pas.dynamodb;
+package com.pas.dynamodb.archived;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.pas.nfl.dao.GamesRowMapper;
+import com.pas.beans.NflPlayoffTeam;
+import com.pas.beans.NflSeason;
+import com.pas.dynamodb.DynamoClients;
+import com.pas.dynamodb.DynamoUtil;
+import com.pas.nfl.dao.PlayoffTeamsRowMapper;
+import com.pas.nfl.dao.TblPlayoffTeams;
 
 import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.EnhancedGlobalSecondaryIndex;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DescribeTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
 import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
-public class Create_NFLGame_Dynamo_Table_From_MySQL
+public class Create_NFLPlayoffTeams_Dynamo_Table_From_MySQL
 {
-	private static Logger logger = LogManager.getLogger(Create_NFLGame_Dynamo_Table_From_MySQL.class); //log4j for Logging 
+	private static Logger logger = LogManager.getLogger(Create_NFLPlayoffTeams_Dynamo_Table_From_MySQL.class); //log4j for Logging 
 	
-	private static String AWS_TABLE_NAME = "nflgames";
-		
+	private static String AWS_TABLE_NAME = "nflplayoffteams";
+	
     public static void main(String[] args) throws Exception
     { 
     	logger.debug("**********  START of program ***********");   	
@@ -39,40 +42,35 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
          {
     		 DynamoClients dynamoClients = DynamoUtil.getDynamoClients();
     
-    		 List<DynamoNflGame> gamesList = getGamesFromMySQLDB();	
-    		 loadTable(dynamoClients, gamesList);       	
+    		 List<TblPlayoffTeams> playoffTeamsList = getPlayoffTeamsFromMySQLDB();	
+    		 loadTable(dynamoClients, playoffTeamsList);
+	       	
+	    	 DynamoUtil.stopDynamoServer();
 	    	
 			 logger.debug("**********  END of program ***********");
          }
     	 catch (Exception e)
     	 {
-    		 logger.error("Exception in Create_NFLGame_Dynamo_Table_From_MySQL " + e.getMessage(), e);
+    		 logger.error("Exception in Create_All_Dynamo_Tables " + e.getMessage(), e);
     	 }
 		System.exit(1);
 	}
 
-    private static List<DynamoNflGame> getGamesFromMySQLDB() 
+    private static List<TblPlayoffTeams> getPlayoffTeamsFromMySQLDB() 
 	{
 		MysqlDataSource ds = getMySQLDatasource();
     	JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);    
-    	String sql = " select game.iGameID, game.iWeekID, game.dGameDateTime, game.iAwayTeamID, game.iHomeTeamID,"
-    			+ "   	game.iAwayTeamScore, game.iHomeTeamScore, game.iGameTypeID,"
-    			+ "    gametype.sGameTypeDesc, gametype.iPlayoffRound,"
-    			+ "    CONCAT(awayteam.vTeamCity,' ',awayteam.vTeamNickname) as awayteamName,"
-    			+ "    CONCAT(hometeam.vTeamCity,' ',hometeam.vTeamNickname) as hometeamName,"
-    			+ "    hometeam.cTeamCityAbbr as homeTeamAbbr, awayteam.cTeamCityAbbr as awayTeamAbbr,"
-    			+ "    week.iSeasonID, week.iWeekNumber, week.sWeekDescription, season.cYear"
-    			+ "    from tblgame game inner join tblweek week on game.iWeekID = week.iWeekID "
-    			+ "        inner join tblgametype gametype on game.iGameTypeID = gametype.iGameTypeID"
-    			+ "        inner join tblteam hometeam on game.iHomeTeamID = hometeam.iTeamID"
-    			+ "        inner join tblteam awayteam on game.iAwayTeamID = awayteam.iTeamID"
-    			+ "        inner join tblseason season on week.iSeasonID = season.iSeasonID"
-    			+ "     order by week.iSeasonID, week.iWeekNumber, game.dGameDateTime";		 
-    	List<DynamoNflGame> gamesList = jdbcTemplate.query(sql, new GamesRowMapper());
-		return gamesList;
+    	String sql = "select playoffteams.iSeasonID, playoffteams.iConferenceID, playoffteams.iTeamID,"
+    			+ "		playoffteams.iSeed, playoffteams.bBye, CONCAT(team.vTeamCity,' ',team.vTeamNickname) as teamName,"
+    			+ "        tblseason.cYear as seasonYear"
+    			+ " from tblplayoffteams playoffteams inner join tblteam team on playoffteams.iTeamID = team.iTeamID"
+    			+ "		inner join tblseason on tblseason.iSeasonID = playoffteams.iSeasonID"
+    			+ " order by iSeasonID, iConferenceID;";		 
+    	List<TblPlayoffTeams> playoffTeamsList = jdbcTemplate.query(sql, new PlayoffTeamsRowMapper());
+		return playoffTeamsList;
 	}
    
-    private static void loadTable(DynamoClients dynamoClients, List<DynamoNflGame> gamesList) throws Exception 
+    private static void loadTable(DynamoClients dynamoClients, List<TblPlayoffTeams> playoffTeamsList) throws Exception 
     {
         //Delete the table in DynamoDB Local if it exists.  If not, just catch the exception and move on
         try
@@ -85,50 +83,44 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
         }
         
         // Create a table in DynamoDB Local
-        DynamoDbTable<DynamoNflGame> gameTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
+        DynamoDbTable<NflPlayoffTeam> playoffTeamTable = createTable(dynamoClients.getDynamoDbEnhancedClient(), dynamoClients.getDdbClient());           
 
         // Insert data into the table
     	logger.info("Inserting data into the table:" + AWS_TABLE_NAME);
-        
-    	int putCount = 0;
-    	
-        if (gamesList == null)
+         
+        if (playoffTeamsList == null)
         {
-        	logger.error("games list is Empty - can't do anything more so exiting");
+        	logger.error("seasons list is Empty - can't do anything more so exiting");
         }
         else
         {
-        	logger.info("About to try to put " + gamesList.size() + " rows into table " + AWS_TABLE_NAME);
-        	
-        	for (int i = 0; i < gamesList.size(); i++) 
+        	for (int i = 0; i < playoffTeamsList.size(); i++) 
         	{
-        		DynamoNflGame nflGame = gamesList.get(i);
-        		gameTable.putItem(nflGame); 
-				putCount++;
-				logger.info(AWS_TABLE_NAME + " Put game row count: " + putCount);
-			} 
-        	
-        	logger.info("FINISHED inserting " + putCount + " rows into the table:" + AWS_TABLE_NAME);
+        		NflPlayoffTeam nflPlayoffTeam = new NflPlayoffTeam();
+            	TblPlayoffTeams tblPlayoffTeams = playoffTeamsList.get(i);
+				
+				nflPlayoffTeam.setPlayoffTeamID(UUID.randomUUID().toString());
+				nflPlayoffTeam.setbBye(tblPlayoffTeams.getbBye());
+				nflPlayoffTeam.setiConferenceId(tblPlayoffTeams.getiConferenceId());
+				nflPlayoffTeam.setIseasonId(tblPlayoffTeams.getIseasonId());
+				nflPlayoffTeam.setiSeed(tblPlayoffTeams.getiSeed());
+				nflPlayoffTeam.setiTeamID(tblPlayoffTeams.getiTeamID());
+				nflPlayoffTeam.setSeasonYear(tblPlayoffTeams.getSeasonYear());
+				nflPlayoffTeam.setTeamName(tblPlayoffTeams.getTeamName());
+				playoffTeamTable.putItem(nflPlayoffTeam); 
+			}           
         }        
 	}
    
-    private static DynamoDbTable<DynamoNflGame> createTable(DynamoDbEnhancedClient ddbEnhancedClient, DynamoDbClient ddbClient) 
+    private static DynamoDbTable<NflPlayoffTeam> createTable(DynamoDbEnhancedClient ddbEnhancedClient, DynamoDbClient ddbClient) 
     {
-        DynamoDbTable<DynamoNflGame> gamesTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(DynamoNflGame.class));
+        DynamoDbTable<NflPlayoffTeam> playoffTeamTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflPlayoffTeam.class));
         
         // Create the DynamoDB table.  If it exists, it'll throw an exception
         
         try
-        {        	
-          	ArrayList<EnhancedGlobalSecondaryIndex> gsindices = new ArrayList<>();
-            	
-        	EnhancedGlobalSecondaryIndex gsi1 = EnhancedGlobalSecondaryIndex.builder()
-        			.indexName("gsi_GameDate")
-        			.projection(p -> p.projectionType(ProjectionType.ALL))
-        			.build();
-        	gsindices.add(gsi1);
-        	            	  	
-        	gamesTable.createTable(r -> r.globalSecondaryIndices(gsindices).build());
+        {
+	        playoffTeamTable.createTable(builder -> builder.build());
         }
         catch (ResourceInUseException riue)
         {
@@ -152,13 +144,13 @@ public class Create_NFLGame_Dynamo_Table_From_MySQL
             logger.info(AWS_TABLE_NAME + " table was created.");
         }        
         
-        return gamesTable;
+        return playoffTeamTable;
     }    
     
     private static void deleteTable(DynamoDbEnhancedClient ddbEnhancedClient) throws Exception
     {
-    	DynamoDbTable<DynamoNflGame> teamTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(DynamoNflGame.class));
-       	teamTable.deleteTable();		
+    	DynamoDbTable<NflSeason> seasonTable = ddbEnhancedClient.table(AWS_TABLE_NAME, TableSchema.fromBean(NflSeason.class));
+       	seasonTable.deleteTable();		
 	}
 
     private static MysqlDataSource getMySQLDatasource()

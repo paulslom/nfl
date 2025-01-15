@@ -2,14 +2,12 @@ package com.pas.nfl.dao;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,8 +24,9 @@ public class NflPlayoffTeamDAO implements Serializable
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LogManager.getLogger(NflPlayoffTeamDAO.class);
 	
-	private Map<String,NflPlayoffTeam> fullNflPlayoffTeamsMap = new HashMap<>(); 
+	private Map<Integer,List<NflPlayoffTeam>> nflPlayoffTeamsMapBySeason = new HashMap<>(); 
 	private List<NflPlayoffTeam> fullNflPlayoffTeamList = new ArrayList<>();
+	private List<NflPlayoffTeam> playoffTeamsList = new ArrayList<>();
 	
 	private static DynamoClients dynamoClients;
 	private static DynamoDbTable<NflPlayoffTeam> nflTeamsTable;
@@ -103,13 +102,11 @@ public class NflPlayoffTeamDAO implements Serializable
 		
 		while (results.hasNext()) 
         {
-			NflPlayoffTeam nflSeason = results.next();						
-            this.getFullNflPlayoffTeamList().add(nflSeason);            
+			NflPlayoffTeam nflPlayoffTeam = results.next();						
+            this.getFullNflPlayoffTeamList().add(nflPlayoffTeam);            
         }
 		
 		logger.info("LoggedDBOperation: function-inquiry; table:nflplayoffteam; rows:" + this.getFullNflPlayoffTeamList().size());
-		
-		this.setFullNflPlayoffTeamsMap(this.getFullNflPlayoffTeamList().stream().collect(Collectors.toMap(NflPlayoffTeam::getPlayoffTeamID, ply -> ply)));
 		
 		Collections.sort(this.getFullNflPlayoffTeamList(), new Comparator<NflPlayoffTeam>() 
 		{
@@ -118,36 +115,57 @@ public class NflPlayoffTeamDAO implements Serializable
 		      return o1.getIseasonId().compareTo(o2.getIseasonId());
 		   }
 		});
+		
+		int maxSeasonID = 0;
+		
+		for (int i = 0; i < this.getFullNflPlayoffTeamList().size(); i++) 
+		{			
+			NflPlayoffTeam nflplayoffteam = this.getFullNflPlayoffTeamList().get(i);
+			
+			if (this.getNflPlayoffTeamsMapBySeason().containsKey(nflplayoffteam.getIseasonId()))
+			{
+				List<NflPlayoffTeam> tempPlayoffTeamList = this.getNflPlayoffTeamsMapBySeason().get(nflplayoffteam.getIseasonId());
+				tempPlayoffTeamList.add(nflplayoffteam);
+				this.getNflPlayoffTeamsMapBySeason().replace(nflplayoffteam.getIseasonId(), tempPlayoffTeamList);
+			}
+			else
+			{
+				List<NflPlayoffTeam> tempPlayoffTeamList = new ArrayList<>();
+				tempPlayoffTeamList.add(nflplayoffteam);
+				this.getNflPlayoffTeamsMapBySeason().put(nflplayoffteam.getIseasonId(), tempPlayoffTeamList);
+				if (nflplayoffteam.getIseasonId() > maxSeasonID)
+				{
+					maxSeasonID = nflplayoffteam.getIseasonId();
+				}
+			}
+		}
+		
+		//establish this season's playoffteams.  Default to max season id
+		this.setPlayoffTeamsList(this.getNflPlayoffTeamsMapBySeason().get(maxSeasonID));
 	}
 	
 	private void refreshListsAndMaps(String function, NflPlayoffTeam nflplayoffteam)
 	{
+		Integer seasonId = nflplayoffteam.getIseasonId();
+		
 		if (function.equalsIgnoreCase("delete"))
 		{
-			this.getFullNflPlayoffTeamsMap().remove(nflplayoffteam.getPlayoffTeamID());		
+			//todo
 		}
 		else if (function.equalsIgnoreCase("add"))
-		{
-			this.getFullNflPlayoffTeamsMap().put(nflplayoffteam.getPlayoffTeamID(), nflplayoffteam);		
+		{			
+			ArrayList<NflPlayoffTeam> newList = new ArrayList<>(this.getNflPlayoffTeamsMapBySeason().get(seasonId));
+			newList.add(nflplayoffteam);
+			this.getNflPlayoffTeamsMapBySeason().replace(seasonId, newList);		
 		}
 		else if (function.equalsIgnoreCase("update"))
 		{
-			this.getFullNflPlayoffTeamsMap().remove(nflplayoffteam.getPlayoffTeamID());		
-			this.getFullNflPlayoffTeamsMap().put(nflplayoffteam.getPlayoffTeamID(), nflplayoffteam);	
+			//todo
 		}
 		
-		this.getFullNflPlayoffTeamList().clear();
-		Collection<NflPlayoffTeam> values = this.getFullNflPlayoffTeamsMap().values();
-		this.setFullNflPlayoffTeamList(new ArrayList<>(values));
-		
-		Collections.sort(this.getFullNflPlayoffTeamList(), new Comparator<NflPlayoffTeam>() 
-		{
-		   public int compare(NflPlayoffTeam o1, NflPlayoffTeam o2) 
-		   {
-		      return o1.getiTeamID().compareTo(o2.getiTeamID());
-		   }
-		});
-				
+		ArrayList<NflPlayoffTeam> newList = new ArrayList<>(this.getNflPlayoffTeamsMapBySeason().get(seasonId));
+		this.getPlayoffTeamsList().clear();
+		this.setPlayoffTeamsList(newList);				
 	}
 	
 	public List<NflPlayoffTeam> getFullNflPlayoffTeamList() 
@@ -160,12 +178,20 @@ public class NflPlayoffTeamDAO implements Serializable
 		this.fullNflPlayoffTeamList = fullNflPlayoffTeamList;
 	}
 
-	public Map<String, NflPlayoffTeam> getFullNflPlayoffTeamsMap() {
-		return fullNflPlayoffTeamsMap;
+	public List<NflPlayoffTeam> getPlayoffTeamsList() {
+		return playoffTeamsList;
 	}
 
-	public void setFullNflPlayoffTeamsMap(Map<String, NflPlayoffTeam> fullNflPlayoffTeamsMap) {
-		this.fullNflPlayoffTeamsMap = fullNflPlayoffTeamsMap;
+	public void setPlayoffTeamsList(List<NflPlayoffTeam> playoffTeamsList) {
+		this.playoffTeamsList = playoffTeamsList;
+	}
+
+	public Map<Integer, List<NflPlayoffTeam>> getNflPlayoffTeamsMapBySeason() {
+		return nflPlayoffTeamsMapBySeason;
+	}
+
+	public void setNflPlayoffTeamsMapBySeason(Map<Integer, List<NflPlayoffTeam>> nflPlayoffTeamsMapBySeason) {
+		this.nflPlayoffTeamsMapBySeason = nflPlayoffTeamsMapBySeason;
 	}
 
 

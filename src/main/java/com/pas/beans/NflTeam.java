@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @DynamoDbBean
@@ -26,9 +27,12 @@ public class NflTeam implements Serializable
     private Integer iConferenceID;
     private String vDivisionLifespan;
     private String vDivisionName;
-    private String vConferenceName;    
-    
+    private String vConferenceName;     
     private String fullTeamName;
+    
+    //these 2 are not to be stored on database (dynamodb annotation below) - only needed for playoff bracket setup
+    private boolean playoffTeam;
+    private Integer iSeed;
     
     public String toString()
     {
@@ -124,6 +128,26 @@ public class NflTeam implements Serializable
 	public void setFullTeamName(String fullTeamName) 
 	{
 		this.fullTeamName = fullTeamName;
+	}
+
+	@DynamoDbIgnore
+	public boolean isPlayoffTeam() {
+		return playoffTeam;
+	}
+
+	@DynamoDbIgnore
+	public void setPlayoffTeam(boolean playoffTeam) {
+		this.playoffTeam = playoffTeam;
+	}
+
+	@DynamoDbIgnore
+	public Integer getiSeed() {
+		return iSeed;
+	}
+
+	@DynamoDbIgnore
+	public void setiSeed(Integer iSeed) {
+		this.iSeed = iSeed;
 	}
 	
 }

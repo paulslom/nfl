@@ -11,6 +11,10 @@
     
     <h:form id="menuForm"> 
         
+        <p:blockUI block="menuForm" widgetVar="blockWidgetVar"> 
+		    <p:graphicImage value="/images/wait.gif"/>  
+		</p:blockUI> 
+			   
         <table style="table-layout: fixed; width:100%;">
            	
         	<tr>
@@ -46,7 +50,9 @@
 						            <c:forEach items="#{pc_NflMain.seasons2000sList}" var="season2000s">
 										<p:menuitem value="#{season2000s.cYear}" 
 														rendered="#{season2000s.intYear ge decade.decadeStart and season2000s.intYear le decade.decadeEnd}"
-														actionListener="#{pc_NflMain.seasonChange}" 
+														actionListener="#{pc_NflMain.seasonChange}"
+														onclick="PF('blockWidgetVar').show()" 
+						                                oncomplete="PF('block').hide()"		 
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -55,6 +61,8 @@
 										<p:menuitem value="#{season2010s.cYear}" 
 														rendered="#{season2010s.intYear ge decade.decadeStart and season2010s.intYear le decade.decadeEnd}"
 														actionListener="#{pc_NflMain.seasonChange}" 
+														onclick="PF('blockWidgetVar').show()" 
+						                                oncomplete="PF('block').hide()"		 
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -62,7 +70,9 @@
 									<c:forEach items="#{pc_NflMain.seasons2020sList}" var="season2020s">
 										<p:menuitem value="#{season2020s.cYear}" 
 														rendered="#{season2020s.intYear ge decade.decadeStart and season2020s.intYear le decade.decadeEnd}"
-														actionListener="#{pc_NflMain.seasonChange}" 
+														actionListener="#{pc_NflMain.seasonChange}"
+														onclick="PF('blockWidgetVar').show()" 
+						                                oncomplete="PF('block').hide()"		  
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -82,6 +92,8 @@
 						        	<c:forEach items="#{pc_NflMain.currentWeekFirstHalfList}" var="firsthalfweek">
 										<p:menuitem value="#{firsthalfweek.weekNumber}" 
 														rendered="#{firsthalfweek.weekNumber ge weekOuter.weekNumberStart and firsthalfweek.weekNumber le weekOuter.weekNumberEnd}"
+														onclick="PF('blockWidgetVar').show()" 
+						                                oncomplete="PF('block').hide()"		 
 														actionListener="#{pc_NflMain.selectGameScoresWeek}">
 										</p:menuitem>
 									</c:forEach>
@@ -89,6 +101,8 @@
 									<c:forEach items="#{pc_NflMain.currentWeekSecondHalfList}" var="secondhalfweek">
 										<p:menuitem value="#{secondhalfweek.weekNumber}" 
 														rendered="#{secondhalfweek.weekNumber ge weekOuter.weekNumberStart and secondhalfweek.weekNumber le weekOuter.weekNumberEnd}"
+														onclick="PF('blockWidgetVar').show()" 
+						                                oncomplete="PF('block').hide()"		 
 														actionListener="#{pc_NflMain.selectGameScoresWeek}">
 										</p:menuitem>
 									</c:forEach>
@@ -97,6 +111,8 @@
 						        
 						        <p:menuitem value="#{weekOuter.outerWeekDescription}" 
 									rendered="#{weekOuter.weekNumberStart ge 19}"
+									onclick="PF('blockWidgetVar').show()" 
+						            oncomplete="PF('block').hide()"		 
 									actionListener="#{pc_NflMain.selectGameScoresWeek}">
 								</p:menuitem>
 						        
@@ -113,6 +129,8 @@
 						        	<c:forEach items="#{pc_NflMain.teamsListCurrentSeason}" var="team">
 										<p:menuitem value="#{team.fullTeamName}"
 											rendered="#{team.vDivisionName eq division}"
+											onclick="PF('blockWidgetVar').show()" 
+						                    oncomplete="PF('block').hide()"		 
 											actionListener="#{pc_NflMain.selectGameScoresTeam}">
 											   <f:param name="teamid" value="#{team.iTeamID}"/>
 										</p:menuitem>
@@ -125,28 +143,28 @@
 						</p:submenu>
 						
 						<p:submenu label="Reports">
-							<p:menuitem value="Standings" url="#{request.contextPath}/standings.xhtml"/>			
-							<p:menuitem value="Draft" url="#{request.contextPath}/draft.xhtml"/>
-							<p:menuitem value="Schedule" url="#{request.contextPath}/schedule.xhtml"/>
-							<p:menuitem value="Common Games" url="#{request.contextPath}/commongames.xhtml"/>
+							<p:menuitem value="Standings" actionListener="#{pc_StandingsLogic.standingsReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
+							<p:menuitem value="Draft" actionListener="#{pc_DraftLogic.draftReport}"  onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
+							<p:menuitem value="Schedule" actionListener="#{pc_ScheduleLogic.scheduleReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
+							<p:menuitem value="Common Games" url="#{request.contextPath}/commongames.xhtml" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
 						</p:submenu>
 						
 						<p:submenu label="Games">
-							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml"/>	
+							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
 							<p:menuitem value="Add" actionListener="#{pc_NflGame.selectGameforAcid}">
 								<f:param name="operation" value="Add" />
 							</p:menuitem>
 						</p:submenu>
 						
 						<p:submenu label="Playoffs">
-						    <p:menuitem value="Brackets" url="#{request.contextPath}/playoffBrackets.xhtml"/>
-							<p:menuitem value="Add Setup" url="#{request.contextPath}/playoffBracketsSetup.xhtml"/>
+						    <p:menuitem value="Brackets" actionListener="#{pc_PlayoffsLogic.showBrackets}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
+							<p:menuitem value="Add Setup" actionListener="#{pc_PlayoffsLogic.playoffBracketsSetup}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
 						</p:submenu>
 						
 						<p:submenu label="Miscellaneous">
 							<p:menuitem value="Tie Breaker Rules" url="https://www.nfl.com/standings/tie-breaking-procedures"/>
 							<p:menuitem value="Draft Order Rules" url="#{request.contextPath}/draftOrderRules.xhtml"/>	
-							<p:menuitem value="Create next season" actionListener="#{pc_NflMain.createNextSeason}"/>	
+							<p:menuitem value="Create next season" url="#{request.contextPath}/createNextSeason.xhtml"/>	
 						</p:submenu>
 												
 					</p:menubar> 

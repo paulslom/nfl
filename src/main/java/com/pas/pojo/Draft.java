@@ -25,12 +25,7 @@ public class Draft
 	
 	public String toString()
 	{
-		StringBuffer buf = new StringBuffer();
-
-		buf.append("team = " + teamName + "\n");
-		buf.append("Position = " + position + "\n");
-							
-		return buf.toString();
+		return position + ". " + teamName + " " + wins + "-" + losses + "-" + ties;
 	}
 
 	public Integer getPosition()

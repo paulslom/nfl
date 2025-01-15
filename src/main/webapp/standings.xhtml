@@ -1,0 +1,82 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">
+    
+         <h:form id="standingsForm">                      
+     
+            <p:messages id="facesMessagesID" showDetail="false"/>
+            
+            <table>
+         		
+			   <tr>
+			      <td align="center">
+			   		  <h:outputText value="Standings" styleClass="pageSectionTitle"/>
+			   	  </td>
+			   </tr>
+		    
+	          <tr>
+	          
+	              <td>
+	                    
+			  		 <p:dataTable id="standingsTableID" value="#{pc_StandingsLogic.standingsList}" rowIndexVar="rowIndex"
+				          var="stdgs" scrollable="true" scrollHeight="750px" styleClass="dataTableStyle">						
+						  
+						  <p:column style="width:12%" headerText="Division">												
+							  <h:outputText value="#{stdgs.divisionName}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:20%" headerText="Team">												
+							  <h:outputText value="#{stdgs.teamName}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:3%" headerText="W">												
+							  <h:outputText value="#{stdgs.wins}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:3%" headerText="L">												
+							  <h:outputText value="#{stdgs.losses}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:3%" headerText="T">												
+							  <h:outputText value="#{stdgs.ties}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:12%" headerText="Division">												
+							  <h:outputText value="#{stdgs.divisionRecord}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:12%" headerText="Conference">												
+							  <h:outputText value="#{stdgs.conferenceRecord}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:15%" headerText="Strength of Victory">												
+							  <h:outputText value="#{stdgs.strengthOfVictoryRecord}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:15%" headerText="Strength of Victory Pct">												
+							  <h:outputText value="#{stdgs.strengthOfVictoryPct}"/>															
+						  </p:column>	
+						  
+						  <p:column style="width:15%" headerText="Games Remaining">												
+							  <h:outputText value="#{stdgs.gamesRemaining}"/>															
+						  </p:column>
+	        						  										  
+				     </p:dataTable>
+				     
+				  </td>
+		     </tr>
+		     
+		    </table>
+	                
+	   </h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

@@ -20,6 +20,8 @@ public class PlayoffTeamsRowMapper implements RowMapper<TblPlayoffTeams>, Serial
 		playoffTeam.setiConferenceId(rs.getInt("iConferenceId"));
 		playoffTeam.setiSeed(rs.getInt("iSeed"));
 		playoffTeam.setiTeamID(rs.getInt("iTeamID"));
+		playoffTeam.setTeamName(rs.getString("teamName"));
+		playoffTeam.setSeasonYear(rs.getString("seasonYear"));
 	
  		return playoffTeam; 
     	

@@ -175,18 +175,24 @@
 						    value="Add" 	
 						    rendered="#{pc_NflMain.gameAcidSetting eq 'Add'}"
 						    action="#{pc_NflGame.addChangeDelGame}"
+						    onclick="PF('blockWidgetVar').show()" 
+						    oncomplete="PF('block').hide()"
 						    update="gameAddUpdateForm">
 					  </p:commandButton>
 					  <p:commandButton id="UpdateId2" 				   
 						    value="Update" 	
 						    rendered="#{pc_NflMain.gameAcidSetting eq 'Update'}"
 						    action="#{pc_NflGame.addChangeDelGame}"
+						    onclick="PF('blockWidgetVar').show()" 
+						    oncomplete="PF('block').hide()"		
 						    update="gameAddUpdateForm">
 					  </p:commandButton>
 					  <p:commandButton id="UpdateId3" 				   
 						    value="Delete" 	
 						    rendered="#{pc_NflMain.gameAcidSetting eq 'Delete'}"
 						    action="#{pc_NflGame.addChangeDelGame}"
+						    onclick="PF('blockWidgetVar').show()" 
+						    oncomplete="PF('block').hide()"		
 						    update="gameAddUpdateForm">
 					  </p:commandButton>
 			   	  </td>
