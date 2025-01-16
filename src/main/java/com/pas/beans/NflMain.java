@@ -547,9 +547,9 @@ public class NflMain implements Serializable
 		return nflPlayoffTeamDAO.getPlayoffTeamsList();
 	}
 	
-	public List<InnerWeek> getCurrentWeekSecondHalfList() 
+	public void addUpdateNflPlayoffTeam(NflPlayoffTeam nflPlayoffTeam) throws Exception
 	{		
-		return currentWeekSecondHalfList;
+		nflPlayoffTeamDAO.addUpdateNflPlayoffTeam(nflPlayoffTeam);
 	}
 
 	public void setCurrentWeekSecondHalfList(List<InnerWeek> currentWeekSecondHalfList) 
@@ -711,6 +711,10 @@ public class NflMain implements Serializable
 	public List<NflTeam> getNfcTeamsList() 
 	{
 		return nflTeamDAO.getNfcTeamsList();
+	}
+
+	public List<InnerWeek> getCurrentWeekSecondHalfList() {
+		return currentWeekSecondHalfList;
 	}
 
 	

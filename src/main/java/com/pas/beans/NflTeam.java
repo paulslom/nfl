@@ -30,9 +30,10 @@ public class NflTeam implements Serializable
     private String vConferenceName;     
     private String fullTeamName;
     
-    //these 2 are not to be stored on database (dynamodb annotation below) - only needed for playoff bracket setup
+    //these are not to be stored on database (dynamodb annotation below) - only needed for playoff bracket setup
     private boolean playoffTeam;
     private Integer iSeed;
+    private String rowStyleClass = "";
     
     public String toString()
     {
@@ -148,6 +149,16 @@ public class NflTeam implements Serializable
 	@DynamoDbIgnore
 	public void setiSeed(Integer iSeed) {
 		this.iSeed = iSeed;
+	}
+
+	@DynamoDbIgnore
+	public String getRowStyleClass() {
+		return rowStyleClass;
+	}
+
+	@DynamoDbIgnore
+	public void setRowStyleClass(String rowStyleClass) {
+		this.rowStyleClass = rowStyleClass;
 	}
 	
 }

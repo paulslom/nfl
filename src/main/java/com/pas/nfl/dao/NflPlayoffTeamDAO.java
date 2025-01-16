@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,7 @@ public class NflPlayoffTeamDAO implements Serializable
 	private List<NflPlayoffTeam> playoffTeamsList = new ArrayList<>();
 	
 	private static DynamoClients dynamoClients;
-	private static DynamoDbTable<NflPlayoffTeam> nflTeamsTable;
+	private static DynamoDbTable<NflPlayoffTeam> nflPLayoffTeamsTable;
 	private static final String AWS_TABLE_NAME = "nflplayoffteams";
 		
 	public NflPlayoffTeamDAO(DynamoClients dynamoClients2) 
@@ -37,7 +38,7 @@ public class NflPlayoffTeamDAO implements Serializable
 	   try 
 	   {
 	       dynamoClients = dynamoClients2;
-	       nflTeamsTable = dynamoClients.getDynamoDbEnhancedClient().table(AWS_TABLE_NAME, TableSchema.fromBean(NflPlayoffTeam.class));
+	       nflPLayoffTeamsTable = dynamoClients.getDynamoDbEnhancedClient().table(AWS_TABLE_NAME, TableSchema.fromBean(NflPlayoffTeam.class));
 	   } 
 	   catch (final Exception ex) 
 	   {
@@ -45,11 +46,11 @@ public class NflPlayoffTeamDAO implements Serializable
 	   }	   
 	}
 	
-	public Integer addNflPlayoffTeam(NflPlayoffTeam nflplayoffteam) throws Exception
+	public String addUpdateNflPlayoffTeam(NflPlayoffTeam nflplayoffteam) throws Exception
 	{
 		NflPlayoffTeam nflTeam2 = dynamoUpsert(nflplayoffteam);		
 		 
-		nflplayoffteam.setiTeamID(nflTeam2.getiTeamID());
+		nflplayoffteam.setPlayoffTeamID(nflTeam2.getPlayoffTeamID());
 		
 		logger.info("LoggedDBOperation: function-add; table:nflplayoffteam; rows:1");
 		
@@ -57,48 +58,25 @@ public class NflPlayoffTeamDAO implements Serializable
 				
 		logger.info("addNflPlayoffTeam complete");		
 		
-		return nflTeam2.getiTeamID(); //this is the key that was just added
+		return nflTeam2.getPlayoffTeamID(); //this is the key that was just added
 	}
 	
-	private NflPlayoffTeam dynamoUpsert(NflPlayoffTeam nflplayoffteam) throws Exception 
+	private NflPlayoffTeam dynamoUpsert(NflPlayoffTeam dynamoNflPlayoffTeam) throws Exception 
 	{
-		NflPlayoffTeam dynamoNflPlayoffTeam = new NflPlayoffTeam();
-        
-		if (nflplayoffteam.getiTeamID() == null)
+		if (dynamoNflPlayoffTeam.getPlayoffTeamID() == null)
 		{
-			Integer currentMaxTeamID = 0;
-			for (int i = 0; i < this.getFullNflPlayoffTeamList().size(); i++) 
-			{
-				NflPlayoffTeam nflTeam = this.getFullNflPlayoffTeamList().get(i);
-				currentMaxTeamID = nflTeam.getiTeamID();
-			}
-			dynamoNflPlayoffTeam.setiTeamID(currentMaxTeamID + 1);
+			dynamoNflPlayoffTeam.setPlayoffTeamID(UUID.randomUUID().toString());			
 		}
-		else
-		{
-			dynamoNflPlayoffTeam.setiTeamID(nflplayoffteam.getiTeamID());
-		}
-				
+						
 		PutItemEnhancedRequest<NflPlayoffTeam> putItemEnhancedRequest = PutItemEnhancedRequest.builder(NflPlayoffTeam.class).item(dynamoNflPlayoffTeam).build();
-		nflTeamsTable.putItem(putItemEnhancedRequest);
+		nflPLayoffTeamsTable.putItem(putItemEnhancedRequest);
 			
 		return dynamoNflPlayoffTeam;
-	}
-
-	public void updateNflPlayoffTeam(NflPlayoffTeam nflplayoffteam)  throws Exception
-	{
-		dynamoUpsert(nflplayoffteam);		
-			
-		logger.info("LoggedDBOperation: function-update; table:nflplayoffteam; rows:1");
-		
-		refreshListsAndMaps("update", nflplayoffteam);	
-		
-		logger.debug("update nflplayoffteam table complete");		
 	}
 	
 	public void readNflPlayoffTeamsFromDB() 
     {
-		Iterator<NflPlayoffTeam> results = nflTeamsTable.scan().items().iterator();
+		Iterator<NflPlayoffTeam> results = nflPLayoffTeamsTable.scan().items().iterator();
 		
 		while (results.hasNext()) 
         {
@@ -148,21 +126,23 @@ public class NflPlayoffTeamDAO implements Serializable
 	{
 		Integer seasonId = nflplayoffteam.getIseasonId();
 		
-		if (function.equalsIgnoreCase("delete"))
-		{
-			//todo
+		if (function.equalsIgnoreCase("add"))
+		{	
+			if (this.getNflPlayoffTeamsMapBySeason().containsKey(seasonId))
+			{
+				ArrayList<NflPlayoffTeam> newList = new ArrayList<>(this.getNflPlayoffTeamsMapBySeason().get(seasonId));
+				newList.add(nflplayoffteam);
+				this.getNflPlayoffTeamsMapBySeason().replace(seasonId, newList);		
+			}
+			else
+			{
+				ArrayList<NflPlayoffTeam> newList = new ArrayList<>();
+				newList.add(nflplayoffteam);
+				this.getNflPlayoffTeamsMapBySeason().put(seasonId, newList);
+			}
+			
 		}
-		else if (function.equalsIgnoreCase("add"))
-		{			
-			ArrayList<NflPlayoffTeam> newList = new ArrayList<>(this.getNflPlayoffTeamsMapBySeason().get(seasonId));
-			newList.add(nflplayoffteam);
-			this.getNflPlayoffTeamsMapBySeason().replace(seasonId, newList);		
-		}
-		else if (function.equalsIgnoreCase("update"))
-		{
-			//todo
-		}
-		
+			
 		ArrayList<NflPlayoffTeam> newList = new ArrayList<>(this.getNflPlayoffTeamsMapBySeason().get(seasonId));
 		this.getPlayoffTeamsList().clear();
 		this.setPlayoffTeamsList(newList);				

@@ -40,7 +40,9 @@
 				           var="afcTeam" scrollable="true" scrollHeight="800" styleClass="dataTableStyle">						
 						   
 						   <p:column style="width:10%" headerText="Y/N">												
-							  <p:selectBooleanCheckbox id="afcplayoffteamId" value="#{afcTeam.playoffTeam}" rendered="#{not empty afcTeam.vDivisionName}"/>															
+							  <p:selectBooleanCheckbox id="afcCheckBoxId" value="#{afcTeam.playoffTeam}" rendered="#{not empty afcTeam.vDivisionName}">
+							  	  <p:ajax event="change" update="afcDivNameID afcTeamNameID" listener="#{pc_PlayoffsLogic.styleTheRow}" />
+							  </p:selectBooleanCheckbox>														
 						   </p:column>
 						       	 				       				  
 						   <p:column style="width:10%" headerText="Seed">												
@@ -48,11 +50,11 @@
 						   </p:column>
 						  
 						   <p:column style="width:20%" headerText="Division">												
-							  <h:outputText value="#{afcTeam.vDivisionName}"/>															
+							  <h:outputText id="afcDivNameID" value="#{afcTeam.vDivisionName}" styleClass="#{afcTeam.rowStyleClass}"/> 										
 						   </p:column>
 						  
 						   <p:column style="width:60%" headerText="Team">												
-							  <h:outputText value="#{afcTeam.fullTeamName}"/>															
+							  <h:outputText id="afcTeamNameID" value="#{afcTeam.fullTeamName}" styleClass="#{afcTeam.rowStyleClass}"/>															
 						   </p:column>	     	
 		     				                       
 	                    </p:dataTable> 
@@ -65,7 +67,9 @@
 				           var="nfcTeam" scrollable="true" scrollHeight="8000" styleClass="dataTableStyle">						
 						   
 						   <p:column style="width:10%" headerText="Y/N">												
-							  <p:selectBooleanCheckbox id="nfcplayoffteamId" value="#{nfcTeam.playoffTeam}" rendered="#{not empty nfcTeam.vDivisionName}"/>															
+							  <p:selectBooleanCheckbox id="nfcCheckBoxId" value="#{nfcTeam.playoffTeam}" rendered="#{not empty nfcTeam.vDivisionName}">
+							      <p:ajax event="change" update="nfcDivNameID nfcTeamNameID"  listener="#{pc_PlayoffsLogic.styleTheRow}" />
+							  </p:selectBooleanCheckbox>													
 						   </p:column>
 						       	 				       				  
 						   <p:column style="width:10%" headerText="Seed">												
@@ -73,11 +77,11 @@
 						   </p:column>
 						  
 						   <p:column style="width:20%" headerText="Division">												
-							  <h:outputText value="#{nfcTeam.vDivisionName}"/>															
+							  <h:outputText id="nfcDivNameID" value="#{nfcTeam.vDivisionName}" styleClass="#{nfcTeam.rowStyleClass}"/>															
 						   </p:column>
 						  
 						   <p:column style="width:60%" headerText="Team">												
-							  <h:outputText value="#{nfcTeam.fullTeamName}"/>															
+							  <h:outputText id="nfcTeamNameID" value="#{nfcTeam.fullTeamName}" styleClass="#{nfcTeam.rowStyleClass}"/>															
 						   </p:column>	     	
 		     					                       
 	                    </p:dataTable> 
