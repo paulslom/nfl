@@ -45,6 +45,11 @@ public class DynamoNflGame implements Serializable
     private Integer tabIndexAwayTeam;
     private Integer tabIndexHomeTeam;
     
+    public String toString()
+    {
+    	return gameDateTimeDisplay + " :" + cawayteamCityAbbr + " @ " + chometeamCityAbbr;
+    }
+    
 	@DynamoDbPartitionKey
 	public Integer getIgameId() 
     {

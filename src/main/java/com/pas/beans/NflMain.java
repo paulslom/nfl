@@ -527,6 +527,11 @@ public class NflMain implements Serializable
 		setCurrentWeekSecondHalfList(tempList2);
 	}
 	
+	public List<DynamoNflGame> getPlayoffGamesList() 
+	{		
+		return nflGameDAO.getPlayoffGamesList();
+	}
+	
 	public List<SelectItem> getGameTypesList() 
 	{		
 		return nflGameDAO.getGameTypesList();

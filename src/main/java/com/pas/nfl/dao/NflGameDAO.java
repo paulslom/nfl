@@ -39,6 +39,7 @@ public class NflGameDAO implements Serializable
 	
 	private List<DynamoNflGame> fullNflGameList = new ArrayList<>();
 	private List<DynamoNflGame> seasonGamesList = new ArrayList<>();
+	private List<DynamoNflGame> playoffGamesList = new ArrayList<>();
 	private List<SelectItem> gameTypesList = new ArrayList<>();
 	
 	private static DynamoClients dynamoClients;
@@ -420,6 +421,29 @@ public class NflGameDAO implements Serializable
 
 	public void setMaxRegularSeasonWeekNumber(int maxRegularSeasonWeekNumber) {
 		this.maxRegularSeasonWeekNumber = maxRegularSeasonWeekNumber;
+	}
+
+	public List<DynamoNflGame> getPlayoffGamesList() 
+	{
+		playoffGamesList.clear();
+		
+		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
+		{
+			DynamoNflGame nflgame = this.getSeasonGamesList().get(i);
+			if (nflgame.getSgameTypeDesc().equalsIgnoreCase("Regular Season"))
+			{
+				continue;
+			}
+			else
+			{
+				playoffGamesList.add(nflgame);
+			}
+		}
+		return playoffGamesList;
+	}
+
+	public void setPlayoffGamesList(List<DynamoNflGame> playoffGamesList) {
+		this.playoffGamesList = playoffGamesList;
 	}
 
 	

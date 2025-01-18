@@ -92,6 +92,19 @@ body.custom-background
 	};
 }
 
+.bodyBoldCenter
+{ 
+	font-family: Arial, Helvetica, sans-serif; 
+	font-size: 10pt; 
+	font-weight: bold; 
+	vertical-align: middle;
+	color:'#000000';
+	text-align: center; 
+	display: flex; 
+	justify-content: center; 
+	align-items: center;
+}
+
 .ui-menubar	{
 	font: bold 17px "Verdana";
 	vertical-align: top;
