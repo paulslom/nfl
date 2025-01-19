@@ -26,6 +26,7 @@ import com.pas.pojo.InnerWeek;
 import com.pas.pojo.OuterWeek;
 import com.pas.util.Utils;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
@@ -65,17 +66,22 @@ public class NflMain implements Serializable
 	
 	private String gameAcidSetting = "";
 	
+	private String createButtonText = "Create Next Season";
 	private boolean renderGameUpdateFields = false;
 	private boolean renderGameId = false;
 	
+	private int defaultSeasonID = 31; //this is the 2024 season.  Move this up every year.
+	private String defaultSeasonYear = "2024"; //Also move this up every year.
+
 	private NflGameDAO nflGameDAO;
 	private NflPlayoffTeamDAO nflPlayoffTeamDAO;
 	private NflTeamDAO nflTeamDAO;
 	private NflSeasonDAO nflSeasonDAO;
-		
-	public NflMain() 
+	
+	@PostConstruct
+	public void init() 
 	{
-		logger.info("Entering NflMain constructor.  Should only be here ONE time");	
+		logger.info("Entering NflMain init method.  Should only be here ONE time");	
 		logger.info("NflMain id is: " + this.getId());
 		this.setSiteTitle("Slomkowski NFL");
 		
@@ -110,8 +116,8 @@ public class NflMain implements Serializable
 		logger.info("entering loadNflSeasons");
 		nflSeasonDAO = new NflSeasonDAO(dynamoClients);
 		nflSeasonDAO.readNflSeasonsFromDB();
-		this.setCurrentSeasonDisplay("Working on Season: " + nflSeasonDAO.getMaxSeason().getcYear());
-		this.setCurrentSelectedSeason(nflSeasonDAO.getMaxSeason());
+		this.setCurrentSeasonDisplay("Working on Season: " + this.getDefaultSeasonYear());
+		this.setCurrentSelectedSeason(nflSeasonDAO.getFullNflSeasonsMapBySeasonId().get(this.getDefaultSeasonID()));
 		logger.info("Nfl Seasons read in. List size = " + nflSeasonDAO.getFullNflSeasonList().size());		
     }
 	
@@ -127,7 +133,7 @@ public class NflMain implements Serializable
 	{
 		logger.info("entering loadNflGames");
 		nflGameDAO = new NflGameDAO(dynamoClients);
-		nflGameDAO.readNflGamesFromDB();
+		nflGameDAO.readNflGamesFromDB(this.getDefaultSeasonID());
 		logger.info("Nfl Games read in. List size = " + nflGameDAO.getFullNflGameList().size());		
     }
 	
@@ -141,24 +147,31 @@ public class NflMain implements Serializable
 	
 	public void seasonChange(ActionEvent event) 
 	{
-		logger.info("new season selected from menu");
-		
-        try 
+	    try 
         {
             UIMenuItem mi = (UIMenuItem) event.getSource();
             String seasonYear = ((String) mi.getValue());
-            this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
-            this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
-            this.setCurrentWeekList(calculateCurrentWeekList());
-            nflTeamDAO.setThisSeasonsTeams(this.getCurrentSelectedSeason().getiSeasonID());
-            nflGameDAO.setMaxRegularSeasonWeek();
-            nflGameDAO.setSeasonGamesList(nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID()));
+            logger.info("new season selected from menu: " + seasonYear);
+    		
+            seasonChange(seasonYear);
         } 
         catch (Exception e) 
         {
             logger.error("changeMenu exception: " + e.getMessage(), e);
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
         }
        
+    }
+	
+	public void seasonChange(String seasonYear) throws Exception 
+	{
+	    this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
+        this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
+        this.setCurrentWeekList(calculateCurrentWeekList());
+        nflGameDAO.setSeasonGamesList(nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID()));        
+        nflTeamDAO.setThisSeasonsTeams(this.getCurrentSelectedSeason().getiSeasonID());
+        nflGameDAO.setMaxRegularSeasonWeek();            
     }
 	
 	public void selectGameScoresWeek(ActionEvent event) 
@@ -196,6 +209,8 @@ public class NflMain implements Serializable
         catch (Exception e) 
         {
             logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
         }
 	}
 	
@@ -216,27 +231,7 @@ public class NflMain implements Serializable
 		
 		return "";
 		
-	}
-	
-	public String importScheduleData()
-	{
-		try
-		{
-			String nextYear = nflSeasonDAO.getMaxSeason().getcYear();
-			nflGameDAO.importNextSeasonSchedule(nextYear);
-			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO,"Games successfully imported",null);
-			FacesContext.getCurrentInstance().addMessage(null, msg); 
-		}
-		catch (Exception e)
-		{
-			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
-			FacesContext.getCurrentInstance().addMessage(null, msg); 
-			logger.error("importScheduleData exception: " + e.getMessage(), e);
-		}
-		
-		return "";
-		
-	}
+	}	
 	
 	public void selectGameScoresTeam(ActionEvent event) 
 	{
@@ -266,31 +261,32 @@ public class NflMain implements Serializable
             logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
         }
 	}
-	
-	
 			
 	private List<InnerWeek> calculateCurrentWeekList() 
 	{		
 		List<InnerWeek> returnList = new ArrayList<>();
 		List<DynamoNflGame> thisSeasonsGamesList = nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID());
 		
-		//we need a list of unique weeks for this season.  Have the key be the week number, and the value be an InnerWeek.  Then we can stream to a list from the map later.
-		Map<Integer, InnerWeek> tempMap = new HashMap<>();
-		
-		for (int i = 0; i < thisSeasonsGamesList.size(); i++) 
+		if (thisSeasonsGamesList != null) //may not be any if new season being created
 		{
-			DynamoNflGame nflgame = thisSeasonsGamesList.get(i);
-			if (!tempMap.containsKey(nflgame.getIweekNumber()))
+			//we need a list of unique weeks for this season.  Have the key be the week number, and the value be an InnerWeek.  Then we can stream to a list from the map later.
+			Map<Integer, InnerWeek> tempMap = new HashMap<>();
+			
+			for (int i = 0; i < thisSeasonsGamesList.size(); i++) 
 			{
-				InnerWeek innerweek = new InnerWeek();
-				innerweek.setWeekId(nflgame.getIweekId());
-				innerweek.setWeekNumber(nflgame.getIweekNumber());
-				tempMap.put(nflgame.getIweekNumber(), innerweek);
+				DynamoNflGame nflgame = thisSeasonsGamesList.get(i);
+				if (!tempMap.containsKey(nflgame.getIweekNumber()))
+				{
+					InnerWeek innerweek = new InnerWeek();
+					innerweek.setWeekId(nflgame.getIweekId());
+					innerweek.setWeekNumber(nflgame.getIweekNumber());
+					tempMap.put(nflgame.getIweekNumber(), innerweek);
+				}
 			}
-		}
-		
-		Collection<InnerWeek> values = tempMap.values();
-		returnList = new ArrayList<>(values);
+			
+			Collection<InnerWeek> values = tempMap.values();
+			returnList = new ArrayList<>(values);
+		}		
 		
 		return returnList;
 	}
@@ -582,7 +578,7 @@ public class NflMain implements Serializable
 			if (gameAcidSetting.equalsIgnoreCase("View"))
 			{
 				this.setRenderGameUpdateFields(false);
-				this.setRenderGameId(false);
+				this.setRenderGameId(true);
 			}
 			else if (gameAcidSetting.equalsIgnoreCase("Add"))
 			{
@@ -646,7 +642,7 @@ public class NflMain implements Serializable
 		
 		if (gameTypeDescription.equalsIgnoreCase("Regular Season"))
 		{
-			weekToAdd = maxRegSeasonWeekid;
+			//not applicable - do nothing
 		}
 		else if (gameTypeDescription.equalsIgnoreCase(Utils.WILD_CARD))
 		{
@@ -720,6 +716,35 @@ public class NflMain implements Serializable
 
 	public List<InnerWeek> getCurrentWeekSecondHalfList() {
 		return currentWeekSecondHalfList;
+	}
+
+	public int getDefaultSeasonID() {
+		return defaultSeasonID;
+	}
+
+	public void setDefaultSeasonID(int defaultSeasonID) {
+		this.defaultSeasonID = defaultSeasonID;
+	}
+
+	public String getDefaultSeasonYear() {
+		return defaultSeasonYear;
+	}
+
+	public void setDefaultSeasonYear(String defaultSeasonYear) {
+		this.defaultSeasonYear = defaultSeasonYear;
+	}
+
+	public String getCreateButtonText() 
+	{
+		String maxyear = nflSeasonDAO.getMaxSeasonYear();
+		Integer maxyearint = Integer.parseInt(maxyear);
+		maxyearint++;
+		this.setCreateButtonText("Create " + maxyearint + " Season");
+		return createButtonText;
+	}
+
+	public void setCreateButtonText(String createButtonText) {
+		this.createButtonText = createButtonText;
 	}
 
 	

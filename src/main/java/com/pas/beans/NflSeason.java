@@ -22,6 +22,11 @@ public class NflSeason implements Serializable
     private Integer iConferencePlayoffTeams;
     private Integer iPlayoffByesByConf;
     
+    public String toString()
+    {
+    	return "seasonid: " + this.getiSeasonID() + " year: " + cYear;
+    }
+    
     @DynamoDbPartitionKey
 	public Integer getiSeasonID() 
 	{

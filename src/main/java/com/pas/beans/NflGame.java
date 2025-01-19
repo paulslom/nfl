@@ -1,10 +1,14 @@
 package com.pas.beans;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +17,7 @@ import com.pas.dynamodb.DateToStringConverter;
 import com.pas.dynamodb.DynamoNflGame;
 import com.pas.util.Utils;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
@@ -38,6 +43,12 @@ public class NflGame implements Serializable
     	return "seasonid: " + this.getSelectedGame().getiSeasonId() + " game date: " + selectedGame.getDgameDateTime() + " " + this.getSelectedGame().getCawayteamCityAbbr() + " @ " + this.getSelectedGame().getChometeamCityAbbr();
     }
    
+    @PostConstruct
+    public void init()
+    {
+    	logger.info("entering postconstruct init method of NflGame");		
+    }
+    
     public String changeGameScores()
     {
     	logger.info("entering changeGameScores");
@@ -102,14 +113,14 @@ public class NflGame implements Serializable
 	}
   	private void setAddUpdateFields() 
     {
-    	/* already set on page:
+    	/* already set on page or in schedule import:
 		iweeknumber
 		igametypeid
 		iawayteamid
 		ihometeamid
 		iawayteamscore
 		ihometeamscore
-		date - but we have to manipulate this
+		gameDateTimeDisplay in the format of example Sun 2025-01-05 04:25 PM
 		*/
     	
 		this.getSelectedGame().setiSeasonId(nflMain.getCurrentSelectedSeason().getiSeasonID());
@@ -133,7 +144,11 @@ public class NflGame implements Serializable
 					   
 		this.getSelectedGame().setSgameTypeDesc(nflMain.getGameTypeDescriptionByGameTypeId(this.getSelectedGame().getIgameTypeId()));
 		this.getSelectedGame().setSweekDescription(nflMain.getGameTypeDescriptionByGameTypeId(this.getSelectedGame().getIgameTypeId()));
-		this.getSelectedGame().setIweekId(nflMain.getAddedWeekId(this.getSelectedGame().getSgameTypeDesc()));
+		
+		if (this.getSelectedGame().getIweekId() != null && this.getSelectedGame().getIweekId() == 0) //only need this if week id not already assigned
+		{
+			this.getSelectedGame().setIweekId(nflMain.getAddedWeekId(this.getSelectedGame().getSgameTypeDesc()));
+		}
 		
 		if (this.getSelectedGame().getSgameTypeDesc().equalsIgnoreCase("Regular Season"))
 		{
@@ -190,7 +205,109 @@ public class NflGame implements Serializable
         }
 	}
     
-    private boolean validateGameEntry() 
+	public String importScheduleData()
+	{
+		try
+		{
+			String nextYear = nflMain.getNflSeasonDAO().getMaxSeason().getcYear();			
+			
+			nflMain.seasonChange(nextYear);
+			
+			InputStream is = getClass().getClassLoader().getResourceAsStream("data/NFLScheduleData" + nextYear + ".csv"); 
+
+		    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		    String line;
+		    
+		    int linecount = 0;
+		    
+		    while ((line = reader.readLine()) != null) 
+		    {
+		    	linecount++;
+		    	
+		        logger.info(linecount + ". line - " + line);
+		        
+		        if (linecount == 1)
+		        {
+		        	continue;
+		        }
+		       
+		        StringTokenizer st = new StringTokenizer(line, ",");
+		        DynamoNflGame dynamoNflGame = new DynamoNflGame();
+		       
+		       //example, should look like this:
+		       //Gameno, weekidNumber, weekNumber, gamedate, gametime,awayid,homeid,gametype
+		       //1,511,1,'Thu 2025-09-04','08:20 PM',5,14,2
+		       
+		       int tokenCount = 0;
+		       String gameDateTime = "";
+		       
+		       while (st.hasMoreTokens()) 
+			   {	 			
+		 			String token = st.nextToken();
+		 			tokenCount++;
+		 			
+		 			switch (tokenCount)
+					{
+		 				case 1:
+		 					gameDateTime = "";
+		 					break;
+		 					
+						case 2:
+							dynamoNflGame.setIweekId(Integer.parseInt(token));
+							break;
+						
+						case 3:
+							dynamoNflGame.setIweekNumber(Integer.parseInt(token));
+							break;
+							
+						case 4:
+							gameDateTime = token.replaceAll("'", "");
+							break;
+							
+						case 5:
+							gameDateTime = gameDateTime + " " + token.replaceAll("'", "");;
+							dynamoNflGame.setGameDateTimeDisplay(gameDateTime);
+							break;							
+						
+						case 6:
+							dynamoNflGame.setIawayTeamID(Integer.parseInt(token));
+							break;							
+							
+						case 7:
+							dynamoNflGame.setIhomeTeamID(Integer.parseInt(token));
+							break;
+												
+						case 8:
+							dynamoNflGame.setIgameTypeId(Integer.parseInt(token));
+							break;
+					}
+		 			
+			   }
+		     	
+			   this.setSelectedGame(dynamoNflGame);
+					       
+		       setAddUpdateFields();
+		       
+		       nflMain.getNflGameDAO().addNflGame(this.getSelectedGame());
+		    }
+		    
+		    reader.close();		
+		    
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO,"Games successfully imported",null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+		}
+		catch (Exception e)
+		{
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,e.getMessage(),null);
+			FacesContext.getCurrentInstance().addMessage(null, msg); 
+			logger.error("importScheduleData exception: " + e.getMessage(), e);
+		}
+		
+		return "";
+		
+	}
+	
+	private boolean validateGameEntry() 
     {
 		boolean fieldsValidated = true; //assume true, if anything wrong make it false and get out
 		

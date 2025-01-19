@@ -1,8 +1,5 @@
 package com.pas.nfl.dao;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +43,6 @@ public class NflGameDAO implements Serializable
 	private static DynamoDbTable<DynamoNflGame> nflGamesTable;
 	private static final String AWS_TABLE_NAME = "nflgames";
 	
-	private int maxSeasonID = 0;
 	private int maxRegularSeasonWeekID = 0;
 	private int maxRegularSeasonWeekNumber = 0;
 	
@@ -70,9 +66,9 @@ public class NflGameDAO implements Serializable
 		dynamoNflGame.setIgameId(nflGame2.getIgameId());
 		
 		logger.info("LoggedDBOperation: function-add; table:nflgame; rows:1");
-		
+	
 		refreshListsAndMaps("add", dynamoNflGame);	
-				
+					
 		logger.info("addNflGame complete. added gameID: " + nflGame2.getIgameId());		
 		
 		return nflGame2.getIgameId(); //this is the key that was just added
@@ -132,7 +128,7 @@ public class NflGameDAO implements Serializable
 		logger.info(" deleteGame complete");	
 	}
 	
-	public void readNflGamesFromDB() 
+	public void readNflGamesFromDB(int seasonID) 
     {
 		Iterator<DynamoNflGame> results = nflGamesTable.scan().items().iterator();
 		
@@ -174,16 +170,12 @@ public class NflGameDAO implements Serializable
 			{
 				List<DynamoNflGame> tempGameList = new ArrayList<>();
 				tempGameList.add(nflgame);
-				this.getGamesMapBySeason().put(nflgame.getiSeasonId(), tempGameList);
-				if (nflgame.getiSeasonId() > this.getMaxSeasonID())
-				{
-					this.setMaxSeasonID(nflgame.getiSeasonId());
-				}
+				this.getGamesMapBySeason().put(nflgame.getiSeasonId(), tempGameList);				
 			}
 		}
 		
-		//establish this season's games.  Default to max season id
-		this.setSeasonGamesList(this.getGamesMapBySeason().get(this.getMaxSeasonID()));
+		//establish this season's games.  Use default season id, supplied from NflMain
+		this.setSeasonGamesList(this.getGamesMapBySeason().get(seasonID));
 		
 		//establish this season's game types.
 		for (Integer key : this.getGameTypesMap().keySet()) 
@@ -202,14 +194,17 @@ public class NflGameDAO implements Serializable
 		int maxweekid = 0;
 		int maxweeknumber = 0;
 		
-		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
+		if (this.getSeasonGamesList() != null)
 		{
-			DynamoNflGame nflgame = this.getSeasonGamesList().get(i);
-			if (nflgame.getSgameTypeDesc().equalsIgnoreCase("Regular Season") && nflgame.getIweekId() > maxweekid)
+			for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
 			{
-				maxweekid = nflgame.getIweekId();
-				maxweeknumber = nflgame.getIweekNumber();
-			}
+				DynamoNflGame nflgame = this.getSeasonGamesList().get(i);
+				if (nflgame.getSgameTypeDesc().equalsIgnoreCase("Regular Season") && nflgame.getIweekId() > maxweekid)
+				{
+					maxweekid = nflgame.getIweekId();
+					maxweeknumber = nflgame.getIweekNumber();
+				}
+			}			
 		}
 		
 		this.setMaxRegularSeasonWeekID(maxweekid);
@@ -278,6 +273,11 @@ public class NflGameDAO implements Serializable
 		{
 			this.getFullNflGamesMap().put(dynamoNflgame.getIgameId(), dynamoNflgame);
 			
+			//First game of an import new season's games won't have this yet, add it
+			if (!this.getGamesMapBySeason().containsKey(seasonId))
+			{
+				this.getGamesMapBySeason().put(seasonId, new ArrayList<DynamoNflGame>());
+			}
 			ArrayList<DynamoNflGame> newList = new ArrayList<>(this.getGamesMapBySeason().get(seasonId));
 			newList.add(dynamoNflgame);
 			this.getGamesMapBySeason().replace(seasonId, newList);			
@@ -310,25 +310,8 @@ public class NflGameDAO implements Serializable
 		this.setFullNflGameList(new ArrayList<>(values));		
 		Collections.sort(this.getFullNflGameList(), new GameComparator());	
 		
-		ArrayList<DynamoNflGame> newList = new ArrayList<>(this.getGamesMapBySeason().get(seasonId));
-		this.getSeasonGamesList().clear();
-		this.setSeasonGamesList(newList);		
+		this.setSeasonGamesList(this.getGamesMapBySeason().get(seasonId));        
 		Collections.sort(this.getSeasonGamesList(), new GameComparator());			
-	}
-	
-	public void importNextSeasonSchedule(String year) throws Exception
-	{
-	    InputStream is = getClass().getClassLoader().getResourceAsStream("data/NFLScheduleData" + year + ".csv"); 
-
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-	    String line;
-	    
-	    while ((line = reader.readLine()) != null) 
-	    {
-	       logger.info("line - " + line);
-	    }
-	    
-	    reader.close();		
 	}
 	
 	public List<DynamoNflGame> getFullNflGameList() 
@@ -371,14 +354,6 @@ public class NflGameDAO implements Serializable
 
 	public void setGameTypesList(List<SelectItem> gameTypesList) {
 		this.gameTypesList = gameTypesList;
-	}
-
-	public int getMaxSeasonID() {
-		return maxSeasonID;
-	}
-
-	public void setMaxSeasonID(int maxSeasonID) {
-		this.maxSeasonID = maxSeasonID;
 	}
 
 	public Map<Integer, String> getGameTypesMap() {
@@ -445,7 +420,5 @@ public class NflGameDAO implements Serializable
 	public void setPlayoffGamesList(List<DynamoNflGame> playoffGamesList) {
 		this.playoffGamesList = playoffGamesList;
 	}
-
-	
 
 }

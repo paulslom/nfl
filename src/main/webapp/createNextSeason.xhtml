@@ -28,7 +28,7 @@
 				<tr>
 				  <td align="center">
 				      <p:commandButton id="createId" 				   
-						  value="Create Next Season" 						    
+						  value="#{pc_NflMain.createButtonText}" 						    
 						  action="#{pc_NflMain.createNextSeason}"
 						  update="createNextSeasonForm">
 					  </p:commandButton>
@@ -36,7 +36,7 @@
 				  <td align="center">
 				      <p:commandButton id="importId" 				   
 						  value="Import Games" 						    
-						  action="#{pc_NflMain.importScheduleData}"
+						  action="#{pc_NflGame.importScheduleData}"
 						  update="createNextSeasonForm">
 					  </p:commandButton>
 				  </td>

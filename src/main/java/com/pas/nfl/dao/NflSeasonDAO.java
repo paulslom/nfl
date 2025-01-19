@@ -39,6 +39,8 @@ public class NflSeasonDAO implements Serializable
 	private static DynamoDbTable<NflSeason> nflSeasonsTable;
 	private static final String AWS_TABLE_NAME = "nflseasons";
 	
+	private String maxSeasonYear = "";
+	
 	public NflSeasonDAO(DynamoClients dynamoClients2) 
 	{
 	   try 
@@ -109,6 +111,8 @@ public class NflSeasonDAO implements Serializable
 		   }
 		});
 		
+		int maxSeasonID = 0;
+		
 		for (int i = 0; i < this.getFullNflSeasonList().size(); i++) 
 		{
 			NflSeason nflseason = this.getFullNflSeasonList().get(i);
@@ -133,6 +137,12 @@ public class NflSeasonDAO implements Serializable
 			else if (seasonYearInt >= 2040 && seasonYearInt <= 2049)
 			{
 				this.getSeasons2040sList().add(nflseason);
+			}
+			
+			if (nflseason.getiSeasonID() > maxSeasonID)
+			{
+				maxSeasonID = nflseason.getiSeasonID();
+				this.setMaxSeasonYear(nflseason.getcYear());
 			}
 		} 
 	}
@@ -251,6 +261,14 @@ public class NflSeasonDAO implements Serializable
 
 	public void setFullNflSeasonsMapByYear(Map<String, NflSeason> fullNflSeasonsMapByYear) {
 		this.fullNflSeasonsMapByYear = fullNflSeasonsMapByYear;
+	}
+
+	public String getMaxSeasonYear() {
+		return maxSeasonYear;
+	}
+
+	public void setMaxSeasonYear(String maxSeasonYear) {
+		this.maxSeasonYear = maxSeasonYear;
 	}
 
 	

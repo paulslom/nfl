@@ -47,7 +47,7 @@ public class DynamoNflGame implements Serializable
     
     public String toString()
     {
-    	return gameDateTimeDisplay + " :" + cawayteamCityAbbr + " @ " + chometeamCityAbbr;
+    	return gameDateTimeDisplay + ": " + cawayteamCityAbbr + " @ " + chometeamCityAbbr;
     }
     
 	@DynamoDbPartitionKey
