@@ -30,7 +30,7 @@ public class NFLUtil
 		
 		if (teamID == game.getIawayTeamID())
 		{	
-		   opponent = "@ " + game.getChometeamCityAbbr().toLowerCase();
+		   opponent = "@" + game.getChometeamCityAbbr().toLowerCase();
 		   
 		}
 		else //team we're working on is the home team

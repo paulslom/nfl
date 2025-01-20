@@ -1,0 +1,123 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">
+    
+         <h:form id="scheduleForm">                      
+     
+            <p:messages id="facesMessagesID" showDetail="false"/>
+            
+            <table>         		
+		  
+		      <tr>
+				  <td align="center">
+					  <p:commandLink ajax="false">
+		                 <p:graphicImage url="/images/pdf.png" width="44"/>
+		                 <p:dataExporter type="pdf" target="scheduleTableID" fileName="nflSchedule" 
+		                 					preProcessor="#{pc_ScheduleLogic.preProcessPDF}" options="#{pc_ScheduleLogic.pdfOpt}"/>
+		              </p:commandLink>		
+				  </td>
+			  </tr>
+			  
+	          <tr>
+	          
+	              <td>
+	                    
+			  		 <p:dataTable id="scheduleTableID" value="#{pc_ScheduleLogic.scheduleList}" rowIndexVar="rowIndex"
+				          var="sch" scrollable="true" scrollHeight="750px" styleClass="dataTableStyle">						
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.team}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week1}" escape="false" styleClass="#{sch.week1Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week2}" escape="false" styleClass="#{sch.week2Style}"/>															
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week3}" escape="false" styleClass="#{sch.week3Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week4}" escape="false" styleClass="#{sch.week4Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week5}" escape="false" styleClass="#{sch.week5Style}"/>																
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week6}" escape="false" styleClass="#{sch.week6Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week7}" escape="false" styleClass="#{sch.week7Style}"/>																
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week8}" escape="false" styleClass="#{sch.week8Style}"/>																	
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week9}" escape="false" styleClass="#{sch.week9Style}"/>																
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week10}" escape="false" styleClass="#{sch.week10Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week11}" escape="false" styleClass="#{sch.week11Style}"/>																
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week12}" escape="false" styleClass="#{sch.week12Style}"/>																
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week13}" escape="false" styleClass="#{sch.week13Style}"/>															
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week14}" escape="false" styleClass="#{sch.week14Style}"/>																
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week15}" escape="false" styleClass="#{sch.week15Style}"/>																
+						  </p:column>
+						  
+						  <p:column>												
+							  <h:outputText value="#{sch.week16}" escape="false" styleClass="#{sch.week16Style}"/>															
+						  </p:column>
+						  
+						  <p:column>														
+							  <h:outputText value="#{sch.week17}" escape="false" styleClass="#{sch.week17Style}"/>																
+						  </p:column>
+						  	
+						  <p:column>												
+							  <h:outputText value="#{sch.week18}" escape="false" styleClass="#{sch.week18Style}"/>																
+						  </p:column>	
+						  			 						 		  										  
+				     </p:dataTable>
+				     
+				  </td>
+				  
+		      </tr>	     
+		     
+		    </table>
+	                
+	   </h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

@@ -13,8 +13,10 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pas.dynamodb.DateToStringConverter;
 import com.pas.dynamodb.DynamoClients;
 import com.pas.dynamodb.DynamoNflGame;
+import com.pas.pojo.Schedule;
 import com.pas.util.GameComparator;
 
 import jakarta.faces.model.SelectItem;
@@ -33,9 +35,10 @@ public class NflGameDAO implements Serializable
 	private Map<Integer,List<DynamoNflGame>> gamesMapBySeason = new HashMap<>(); 
 	private Map<Integer,String> gameTypesMap = new HashMap<>();
 	private Map<Integer,Integer> weeksMapByWeekNumber = new HashMap<>();
+	private Map<String,Map<Integer,String>> teamRegularSeasonGamesMap = new HashMap<>(); 
 	
 	private List<DynamoNflGame> fullNflGameList = new ArrayList<>();
-	private List<DynamoNflGame> seasonGamesList = new ArrayList<>();
+	private List<DynamoNflGame> seasonGamesList = new ArrayList<>();	
 	private List<DynamoNflGame> playoffGamesList = new ArrayList<>();
 	private List<SelectItem> gameTypesList = new ArrayList<>();
 	
@@ -46,6 +49,11 @@ public class NflGameDAO implements Serializable
 	private int maxRegularSeasonWeekID = 0;
 	private int maxRegularSeasonWeekNumber = 0;
 	
+	private Schedule scheduleTitleRow = new Schedule();
+	
+	//private static String HTML_CRLF = "<br>";
+	//private static String PDF_CRLF = "\r\n\r\n";
+		
 	public NflGameDAO(DynamoClients dynamoClients2) 
 	{		
 	   try 
@@ -177,6 +185,12 @@ public class NflGameDAO implements Serializable
 		//establish this season's games.  Use default season id, supplied from NflMain
 		this.setSeasonGamesList(this.getGamesMapBySeason().get(seasonID));
 		
+		//establish this season's games by team
+		this.setTeamGamesMap(seasonID);
+		
+		//establish schedule title row
+		this.establishScheduleTitleRow(seasonID);
+		
 		//establish this season's game types.
 		for (Integer key : this.getGameTypesMap().keySet()) 
 		{
@@ -187,6 +201,125 @@ public class NflGameDAO implements Serializable
         }
 		
 		setMaxRegularSeasonWeek();
+	}
+
+
+	public void establishScheduleTitleRow(Integer getiSeasonID) 
+	{	
+		Map<Integer,String> tempWeeksMap = new HashMap<>();
+		
+		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
+		{
+			DynamoNflGame game = this.getSeasonGamesList().get(i);
+			
+			if (!game.getSgameTypeDesc().equalsIgnoreCase("Regular Season"))
+			{
+				continue;
+			}
+			else if (tempWeeksMap.containsKey(game.getIweekNumber()))
+			{
+				continue;
+			}
+			else if (game.getGameDayOfWeek().equalsIgnoreCase("Sun"))
+			{
+				String dtstr = DateToStringConverter.convertToScheduleFormat(game.getDgameDateTime());
+				String opponentName = "";
+				if (game.getIweekNumber() > 9)
+				{
+					//opponentName = "Wk " + game.getIweekNumber() + HTML_CRLF + dtstr;
+					opponentName = "Wk " + game.getIweekNumber() + " " + dtstr;
+				}
+				else
+				{
+					opponentName = "Wk " + game.getIweekNumber() + " " + dtstr;
+				}
+				tempWeeksMap.put(game.getIweekNumber(),opponentName);				
+			}
+		}
+		
+		Schedule tempSchedule = new Schedule();
+		tempSchedule.setTeam("");
+		
+		List<String> opponentsList = tempWeeksMap.values().stream().collect(Collectors.toList());
+		
+		tempSchedule.setOpponentsList(opponentsList);
+		this.setScheduleTitleRow(tempSchedule);
+		
+	}
+	
+	public void setTeamGamesMap(Integer getiSeasonID) 
+	{
+		this.getTeamRegularSeasonGamesMap().clear();
+		
+		for (int i = 0; i < this.getSeasonGamesList().size(); i++) 
+		{
+			DynamoNflGame game = this.getSeasonGamesList().get(i);
+			
+			if (!game.getSgameTypeDesc().equalsIgnoreCase("Regular Season"))
+			{
+				continue;
+			}
+			
+			if (this.getTeamRegularSeasonGamesMap().containsKey(game.getCawayteamCityAbbr()))
+			{
+				Map<Integer,String> tempMap = new HashMap<>(this.getTeamRegularSeasonGamesMap().get(game.getCawayteamCityAbbr()));
+				tempMap.put(game.getIweekNumber(), "@" + game.getChometeamCityAbbr().toLowerCase() + game.getGameTimeOnly().substring(1, 2));
+				this.getTeamRegularSeasonGamesMap().replace(game.getCawayteamCityAbbr(),tempMap);
+			}
+			else
+			{
+				Map<Integer,String> tempMap = new HashMap<>();
+				tempMap.put(game.getIweekNumber(), "@" + game.getChometeamCityAbbr().toLowerCase() + game.getGameTimeOnly().substring(1, 2));
+				this.getTeamRegularSeasonGamesMap().put(game.getCawayteamCityAbbr(),tempMap);
+			}
+			
+			if (this.getTeamRegularSeasonGamesMap().containsKey(game.getChometeamCityAbbr()))
+			{
+				Map<Integer,String> tempMap = new HashMap<>(this.getTeamRegularSeasonGamesMap().get(game.getChometeamCityAbbr()));
+				tempMap.put(game.getIweekNumber(), game.getCawayteamCityAbbr().toUpperCase() + game.getGameTimeOnly().substring(1, 2));
+				this.getTeamRegularSeasonGamesMap().replace(game.getChometeamCityAbbr(),tempMap);
+			}
+			else
+			{
+				Map<Integer,String> tempMap = new HashMap<>();
+				tempMap.put(game.getIweekNumber(), game.getCawayteamCityAbbr().toUpperCase() + game.getGameTimeOnly().substring(1, 2));
+				this.getTeamRegularSeasonGamesMap().put(game.getChometeamCityAbbr(),tempMap);
+			}
+		}
+		
+		establishByeWeeks();
+		
+		logger.info("done setting team regular season games map");
+	}
+		
+	private void establishByeWeeks() 
+	{
+		Map<String, Integer> byeWeeksMap = new HashMap<>();
+		
+		for (var team : this.getTeamRegularSeasonGamesMap().entrySet()) 
+		{
+		    Map<Integer, String> opponentsMap = team.getValue();
+		    
+		    int lastWeekNum = 1;
+		    for (var opponentsEntry : opponentsMap.entrySet()) 
+			{
+			    if (opponentsEntry.getKey() - lastWeekNum > 1)
+			    {
+			    	byeWeeksMap.put(team.getKey(), Integer.valueOf(lastWeekNum + 1));
+			    }
+			    lastWeekNum = opponentsEntry.getKey();
+			}
+		}
+		
+		for (var byeWeeksEntry : byeWeeksMap.entrySet()) 
+		{
+		    logger.debug("team: " + byeWeeksEntry.getKey() + " bye week: " + byeWeeksEntry.getValue());	
+		    
+		    Map<Integer,String> tempMap = new HashMap<>(this.getTeamRegularSeasonGamesMap().get(byeWeeksEntry.getKey()));
+			tempMap.put(byeWeeksEntry.getValue(), "*BYE*");
+			this.getTeamRegularSeasonGamesMap().replace(byeWeeksEntry.getKey(),tempMap);
+		}
+		
 	}
 
 	public void setMaxRegularSeasonWeek()
@@ -419,6 +552,23 @@ public class NflGameDAO implements Serializable
 
 	public void setPlayoffGamesList(List<DynamoNflGame> playoffGamesList) {
 		this.playoffGamesList = playoffGamesList;
+	}
+
+	public Schedule getScheduleTitleRow() 
+	{
+		return scheduleTitleRow;
+	}
+	
+	public void setScheduleTitleRow(Schedule scheduleTitleRow) {
+		this.scheduleTitleRow = scheduleTitleRow;
+	}
+
+	public Map<String, Map<Integer, String>> getTeamRegularSeasonGamesMap() {
+		return teamRegularSeasonGamesMap;
+	}
+
+	public void setTeamRegularSeasonGamesMap(Map<String, Map<Integer, String>> teamRegularSeasonGamesMap) {
+		this.teamRegularSeasonGamesMap = teamRegularSeasonGamesMap;
 	}
 
 }

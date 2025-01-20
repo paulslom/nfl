@@ -57,8 +57,6 @@ public class StandingsLogic implements Serializable
 
 	private List<Standings> setStandings() throws Exception 
 	{
-		//Get all games for the season provided in info object
-			
 		int tempWins = 0;
 		int tempLosses = 0;
 		int tempTies = 0;

@@ -13,6 +13,7 @@ public class DateToStringConverter
 	public static String userInputDateTimePattern = "E yyyy-MM-dd hh:mm a";
 	public static String mysqlDateTimePattern = "yyyy-MM-dd HH:mm:ss.s";  //example: 2004-09-09 21:00:00.0
 	public static String dynamoDbDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss";
+	public static String schedulePattern = "MMM-dd";
 	
     public static Date unconvert(String s) 
     {
@@ -44,6 +45,14 @@ public class DateToStringConverter
     	return returnString;
     }
     
+    public static String convertToScheduleFormat(String s)
+    {
+    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(dynamoDbDateTimePattern);
+    	LocalDateTime ldt = LocalDateTime.parse(s, inputFormatter);
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern(schedulePattern);  
+    	return dtf.format(ldt);
+    }
+    
     public static void main(String[] args)
     {
     	/*
@@ -57,13 +66,13 @@ public class DateToStringConverter
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(mysqlDateTimePattern);  
     	LocalDateTime datetime = LocalDateTime.parse(dateTimeString, dtf); 
     	System.out.println("date format : " + datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-    	*/
+    	*/    	
     	
-    	String sqlDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    	String dateTimeString = "2004-09-09T21:00:00.000-04:00";
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(sqlDateTimePattern);  
-    	LocalDateTime datetime = LocalDateTime.parse(dateTimeString, dtf); 
-    	System.out.println("date format : " + datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    	String s = "2024-09-08T13:00:00";
+    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(dynamoDbDateTimePattern);
+    	LocalDateTime ldt = LocalDateTime.parse(s, inputFormatter);
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern(schedulePattern);  
+    	System.out.println("date format : " + dtf.format(ldt));
     	
     }
 }

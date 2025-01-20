@@ -1,0 +1,46 @@
+<ui:composition template="template.xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+    <ui:define name="content">
+    
+         <h:form id="commonGamesResultsForm">                      
+     
+             <p:messages id="facesMessagesID" showDetail="false"/>
+            
+            <table>
+         		
+			   <tr>
+			      <td align="center">
+			   		  <h:outputText value="Common Games Results" styleClass="pageSectionTitle"/>
+			   	  </td>
+			   </tr>
+		    
+	          <tr>
+	          
+	              <td>
+	                    
+			  		 <p:dataTable id="gamesTableID" value="#{pc_CommonGamesLogic.commonGamesResultsList}" rowIndexVar="rowIndex"
+				          var="commonGameLine" scrollable="true" scrollHeight="950" styleClass="dataTableStyle">						
+						   
+						  <p:column>						   											
+							  <h:outputText value="#{commonGameLine}"/>															
+						  </p:column>						
+										  
+				     </p:dataTable>
+				     
+				  </td>
+		     </tr>
+		     
+		    </table>
+	                
+	   </h:form>
+   
+    </ui:define>
+
+</ui:composition>
+  

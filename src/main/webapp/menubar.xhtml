@@ -52,7 +52,7 @@
 														rendered="#{season2000s.intYear ge decade.decadeStart and season2000s.intYear le decade.decadeEnd}"
 														actionListener="#{pc_NflMain.seasonChange}"
 														onclick="PF('blockWidgetVar').show()" 
-						                                oncomplete="PF('block').hide()"		 
+						                                oncomplete="PF('blockWidgetVar').hide()"		 
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -62,7 +62,7 @@
 														rendered="#{season2010s.intYear ge decade.decadeStart and season2010s.intYear le decade.decadeEnd}"
 														actionListener="#{pc_NflMain.seasonChange}" 
 														onclick="PF('blockWidgetVar').show()" 
-						                                oncomplete="PF('block').hide()"		 
+						                                oncomplete="PF('blockWidgetVar').hide()"		 
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -72,7 +72,7 @@
 														rendered="#{season2020s.intYear ge decade.decadeStart and season2020s.intYear le decade.decadeEnd}"
 														actionListener="#{pc_NflMain.seasonChange}"
 														onclick="PF('blockWidgetVar').show()" 
-						                                oncomplete="PF('block').hide()"		  
+						                                oncomplete="PF('blockWidgetVar').hide()"		  
 														update="menuForm">
 										</p:menuitem>
 									</c:forEach>
@@ -93,7 +93,7 @@
 										<p:menuitem value="#{firsthalfweek.weekNumber}" 
 														rendered="#{firsthalfweek.weekNumber ge weekOuter.weekNumberStart and firsthalfweek.weekNumber le weekOuter.weekNumberEnd}"
 														onclick="PF('blockWidgetVar').show()" 
-						                                oncomplete="PF('block').hide()"		 
+						                                oncomplete="PF('blockWidgetVar').hide()"		 
 														actionListener="#{pc_NflMain.selectGameScoresWeek}">
 										</p:menuitem>
 									</c:forEach>
@@ -102,7 +102,7 @@
 										<p:menuitem value="#{secondhalfweek.weekNumber}" 
 														rendered="#{secondhalfweek.weekNumber ge weekOuter.weekNumberStart and secondhalfweek.weekNumber le weekOuter.weekNumberEnd}"
 														onclick="PF('blockWidgetVar').show()" 
-						                                oncomplete="PF('block').hide()"		 
+						                                oncomplete="PF('blockWidgetVar').hide()"		 
 														actionListener="#{pc_NflMain.selectGameScoresWeek}">
 										</p:menuitem>
 									</c:forEach>
@@ -112,7 +112,7 @@
 						        <p:menuitem value="#{weekOuter.outerWeekDescription}" 
 									rendered="#{weekOuter.weekNumberStart ge 19}"
 									onclick="PF('blockWidgetVar').show()" 
-						            oncomplete="PF('block').hide()"		 
+						            oncomplete="PF('blockWidgetVar').hide()"		 
 									actionListener="#{pc_NflMain.selectGameScoresWeek}">
 								</p:menuitem>
 						        
@@ -130,7 +130,7 @@
 										<p:menuitem value="#{team.fullTeamName}"
 											rendered="#{team.vDivisionName eq division}"
 											onclick="PF('blockWidgetVar').show()" 
-						                    oncomplete="PF('block').hide()"		 
+						                    oncomplete="PF('blockWidgetVar').hide()"		 
 											actionListener="#{pc_NflMain.selectGameScoresTeam}">
 											   <f:param name="teamid" value="#{team.iTeamID}"/>
 										</p:menuitem>
@@ -143,22 +143,22 @@
 						</p:submenu>
 						
 						<p:submenu label="Reports">
-							<p:menuitem value="Standings" actionListener="#{pc_StandingsLogic.standingsReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
-							<p:menuitem value="Draft" actionListener="#{pc_DraftLogic.draftReport}"  onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
-							<p:menuitem value="Schedule" actionListener="#{pc_ScheduleLogic.scheduleReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
-							<p:menuitem value="Common Games" url="#{request.contextPath}/commongames.xhtml" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>
+							<p:menuitem value="Standings" actionListener="#{pc_StandingsLogic.standingsReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>	
+							<p:menuitem value="Draft" actionListener="#{pc_DraftLogic.draftReport}"  onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>
+							<p:menuitem value="Schedule" actionListener="#{pc_ScheduleLogic.scheduleReport}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>
+							<p:menuitem value="Common Games" actionListener="#{pc_CommonGamesLogic.commonGamesSelection}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>
 						</p:submenu>
 						
 						<p:submenu label="Games">
-							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
+							<p:menuitem value="View-Chg-Del" url="#{request.contextPath}/gamesList.xhtml" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>	
 							<p:menuitem value="Add" actionListener="#{pc_NflGame.selectGameforAcid}">
 								<f:param name="operation" value="Add" />
 							</p:menuitem>
 						</p:submenu>
 						
 						<p:submenu label="Playoffs">
-						    <p:menuitem value="Brackets" actionListener="#{pc_PlayoffsLogic.showBrackets}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
-							<p:menuitem value="Add Setup" actionListener="#{pc_PlayoffsLogic.playoffBracketsSetup}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('block').hide()"/>	
+						    <p:menuitem value="Brackets" actionListener="#{pc_PlayoffsLogic.showBrackets}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>	
+							<p:menuitem value="Add Setup" actionListener="#{pc_PlayoffsLogic.playoffBracketsSetup}" onclick="PF('blockWidgetVar').show()" oncomplete="PF('blockWidgetVar').hide()"/>	
 						</p:submenu>
 						
 						<p:submenu label="Miscellaneous">

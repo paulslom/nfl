@@ -332,5 +332,32 @@ public class Utils
 		
 	}
 	
+	public static List<NflTeam> insertBlankRowsInList(List<NflTeam> inputList)
+	{
+		//now let's tweak to insert a blank row between divisions and blank out division name after the first one
+		
+		List<NflTeam> newList = new ArrayList<>();
+		String lastDivisionName = "";
+		NflTeam blankTeam = new NflTeam();
+		
+		for (int j = 0; j < inputList.size(); j++) 
+		{
+			NflTeam nflteam = inputList.get(j);
+			
+			if (!nflteam.getvDivisionName().equalsIgnoreCase(lastDivisionName)) 
+			{				
+				if (j > 0) //don't add blank row first time through list
+				{
+					newList.add(blankTeam);			
+				}
+			}
+			
+			lastDivisionName = nflteam.getvDivisionName();
+			newList.add(nflteam);
+		}
+		
+		return newList;
+	}
+	
 	
 }

@@ -24,6 +24,7 @@ import com.pas.nfl.dao.NflTeamDAO;
 import com.pas.pojo.Decade;
 import com.pas.pojo.InnerWeek;
 import com.pas.pojo.OuterWeek;
+import com.pas.pojo.Schedule;
 import com.pas.util.Utils;
 
 import jakarta.annotation.PostConstruct;
@@ -169,7 +170,9 @@ public class NflMain implements Serializable
 	    this.setCurrentSelectedSeason(this.getFullNflSeasonsMapByYear().get(seasonYear));
         this.setCurrentSeasonDisplay("Working on Season: " + seasonYear);
         this.setCurrentWeekList(calculateCurrentWeekList());
-        nflGameDAO.setSeasonGamesList(nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID()));        
+        nflGameDAO.setSeasonGamesList(nflGameDAO.getGamesMapBySeason().get(this.getCurrentSelectedSeason().getiSeasonID())); 
+        nflGameDAO.setTeamGamesMap(this.getCurrentSelectedSeason().getiSeasonID());
+        nflGameDAO.establishScheduleTitleRow(this.getCurrentSelectedSeason().getiSeasonID());
         nflTeamDAO.setThisSeasonsTeams(this.getCurrentSelectedSeason().getiSeasonID());
         nflGameDAO.setMaxRegularSeasonWeek();            
     }
@@ -261,7 +264,12 @@ public class NflMain implements Serializable
             logger.error("selectGameScoresWeek exception: " + e.getMessage(), e);
         }
 	}
-			
+	
+	public Schedule getScheduleTitleRow() 
+	{
+		return nflGameDAO.getScheduleTitleRow();
+	}
+	
 	private List<InnerWeek> calculateCurrentWeekList() 
 	{		
 		List<InnerWeek> returnList = new ArrayList<>();
@@ -408,6 +416,11 @@ public class NflMain implements Serializable
 				return new ArrayList<DynamoNflGame>();
 			}
 		}
+	}
+	
+	public List<DynamoNflGame> getScoresByTeam(Integer teamID)
+	{
+		return nflGameDAO.getGameScoresList("byTeam", teamID);
 	}
 	
 	public List<DynamoNflGame> getSeasonGamesList()
@@ -633,6 +646,11 @@ public class NflMain implements Serializable
 		return nflGameDAO.getWeekIdByWeekNumber(weekNumber);
 	}
 
+	public Map<String, Map<Integer, String>> getTeamRegularSeasonGamesMap()
+	{
+		return nflGameDAO.getTeamRegularSeasonGamesMap();
+	}
+	
 	public Integer getAddedWeekId(String gameTypeDescription) 
 	{
 		//need to know the max week id for all regular season games; this is really only for playoff games
@@ -747,5 +765,9 @@ public class NflMain implements Serializable
 		this.createButtonText = createButtonText;
 	}
 
-	
+	public int getTotalRegularSeasonWeeks() 
+	{
+		return nflGameDAO.getMaxRegularSeasonWeekNumber();
+	}
+
 }

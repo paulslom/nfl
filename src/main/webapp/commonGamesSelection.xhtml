@@ -8,48 +8,64 @@
      
     <ui:define name="content">
     
-         <h:form id="playoffBracketsSetupForm">                      
+         <h:form id="commonGamesForm">                      
      
             <p:messages id="facesMessagesID" showDetail="false"/>
             
             <table>
             
            	   <colgroup>
-           	       <col width="50%"/>
-           	       <col width="50%"/>
+           	       <col width="40%"/>
+           	       <col width="20%"/>
+           	       <col width="40%"/>
            	   </colgroup>
            	   
-               <p:blockUI block="playoffBracketsSetupForm" widgetVar="blockWidgetVar"> 
+               <p:blockUI block="commonGamesForm" widgetVar="blockWidgetVar"> 
 			       <p:graphicImage value="/images/wait.gif"/>  
 			   </p:blockUI> 
 				
 			   <tr>
+			      <td colspan="3" align="center">
+			   		  <h:outputText value="Please select at least 2 but no more than 3 teams for common games comparison" styleClass="pageSectionTitle"/>
+			   	  </td>
+			   </tr>
+			   
+			   <tr>
+			   
 	     	 	   <td align="center">
 	     	 	       <p:graphicImage id="afcLogoId" value="/images/afc.png" style="width: 40px; height: 50px;"/>  
 	               </td>
+	               
+	               <td align="center">
+			   		  <p:commandButton id="UpdateId" 				   
+						    value="Submit" 	
+						    action="#{pc_CommonGamesLogic.calculateCommonGames}"
+						    onclick="PF('blockWidgetVar').show()" 
+						    oncomplete="PF('blockWidgetVar').hide()"
+						    update="commonGamesForm">
+					  </p:commandButton>					 
+			   	  </td>
+			   	  
 	     	       <td align="center">
 	                   <p:graphicImage id="nfcLogoId" value="/images/nfc.png" style="width: 40px; height: 50px;"/>  
 	               </td>
+	               
 	           </tr>
 	     	
 	           <tr>
 	     
 	     	       <td>
 	     	       
-	     	            <p:dataTable id="afcTeamsTableID" value="#{pc_PlayoffsLogic.afcTeamsList}" rowIndexVar="rowIndex"
+	     	            <p:dataTable id="afcTeamsTableID" value="#{pc_CommonGamesLogic.afcTeamsList}" rowIndexVar="rowIndex"
 				           var="afcTeam" scrollable="true" scrollHeight="800" styleClass="dataTableStyle">						
 						   
 						   <p:column style="width:10%" headerText="Y/N">												
 							  <p:selectBooleanCheckbox id="afcCheckBoxId" value="#{afcTeam.playoffTeam}" rendered="#{not empty afcTeam.vDivisionName}">
-							  	  <p:ajax event="change" update="afcDivNameID afcTeamNameID" listener="#{pc_PlayoffsLogic.styleTheRow}" />
+							  	  <p:ajax event="change" update="afcDivNameID afcTeamNameID" listener="#{pc_CommonGamesLogic.styleTheRow}" />
 							  </p:selectBooleanCheckbox>														
 						   </p:column>
-						       	 				       				  
-						   <p:column style="width:10%" headerText="Seed">												
-							   <p:inputNumber id="afcSeedId" emptyValue="empty" maxValue="9" decimalPlaces="0" size="1" value="#{afcTeam.iSeed}" rendered="#{not empty afcTeam.vDivisionName}"/> 				
-						   </p:column>
-						  
-						   <p:column style="width:20%" headerText="Division">												
+							  
+						   <p:column style="width:30%" headerText="Division">												
 							  <h:outputText id="afcDivNameID" value="#{afcTeam.vDivisionName}" styleClass="#{afcTeam.rowStyleClass}"/> 										
 						   </p:column>
 						  
@@ -61,22 +77,20 @@
 	                    
 	               </td> 
 	               
+	               <td/>
+	               
 	               <td>
 	     	       
-	     	            <p:dataTable id="nfcTeamsTableID" value="#{pc_PlayoffsLogic.nfcTeamsList}" rowIndexVar="rowIndex"
+	     	            <p:dataTable id="nfcTeamsTableID" value="#{pc_CommonGamesLogic.nfcTeamsList}" rowIndexVar="rowIndex"
 				           var="nfcTeam" scrollable="true" scrollHeight="8000" styleClass="dataTableStyle">						
 						   
 						   <p:column style="width:10%" headerText="Y/N">												
 							  <p:selectBooleanCheckbox id="nfcCheckBoxId" value="#{nfcTeam.playoffTeam}" rendered="#{not empty nfcTeam.vDivisionName}">
-							      <p:ajax event="change" update="nfcDivNameID nfcTeamNameID"  listener="#{pc_PlayoffsLogic.styleTheRow}" />
+							      <p:ajax event="change" update="nfcDivNameID nfcTeamNameID"  listener="#{pc_CommonGamesLogic.styleTheRow}" />
 							  </p:selectBooleanCheckbox>													
 						   </p:column>
-						       	 				       				  
-						   <p:column style="width:10%" headerText="Seed">												
-							   <p:inputNumber id="nfcSeedId" emptyValue="empty" maxValue="9" decimalPlaces="0" size="1" value="#{nfcTeam.iSeed}" rendered="#{not empty nfcTeam.vDivisionName}"/> 
-						   </p:column>
-						  
-						   <p:column style="width:20%" headerText="Division">												
+							  
+						   <p:column style="width:30%" headerText="Division">												
 							  <h:outputText id="nfcDivNameID" value="#{nfcTeam.vDivisionName}" styleClass="#{nfcTeam.rowStyleClass}"/>															
 						   </p:column>
 						  
@@ -89,22 +103,7 @@
 	               </td>         
                        
 			   </tr>     
-	     
-        	   <tr>
-			   
-			      <td colspan="2" align="center">
-			   		  <p:commandButton id="UpdateId" 				   
-						    value="Submit" 	
-						    action="#{pc_PlayoffsLogic.doPlayoffsSetup}"
-						    onclick="PF('blockWidgetVar').show()" 
-						    oncomplete="PF('blockWidgetVar').hide()"
-						    update="playoffBracketsSetupForm">
-					  </p:commandButton>
-					 
-			   	  </td>
-			   	  
-			   </tr>
-        	           		     
+	             	           		     
 		    </table>
 	                
 	   </h:form>
