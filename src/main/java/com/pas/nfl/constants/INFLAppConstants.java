@@ -11,5 +11,7 @@ public interface INFLAppConstants
     
     public static final int AFC = 1;
     public static final int NFC = 2;
+    
+    public static final String CONTEXT_ROOT = "context-root";
 
 }

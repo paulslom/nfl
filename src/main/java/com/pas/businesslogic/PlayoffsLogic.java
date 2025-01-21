@@ -58,7 +58,7 @@ public class PlayoffsLogic implements Serializable
 			calculatePlayoffBrackets();
 			
 	        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/playoffBrackets.xhtml";
+            String targetURL = Utils.getContextRoot() + "/playoffBrackets.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 
@@ -429,7 +429,7 @@ public class PlayoffsLogic implements Serializable
 			this.setNfcTeamsList(Utils.insertBlankRowsInList(nflMain.getNfcTeamsList()));
 			
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/playoffBracketsSetup.xhtml";
+            String targetURL = Utils.getContextRoot() + "/playoffBracketsSetup.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 

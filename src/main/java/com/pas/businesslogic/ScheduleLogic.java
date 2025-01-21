@@ -17,6 +17,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.Image;
 import com.pas.beans.NflMain;
 import com.pas.pojo.Schedule;
+import com.pas.util.Utils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -72,7 +73,7 @@ public class ScheduleLogic implements Serializable
 			this.setSchedule();
 			
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/schedule.xhtml";
+            String targetURL = Utils.getContextRoot() + "/schedule.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 

@@ -16,6 +16,7 @@ import com.pas.nfl.constants.INFLAppConstants;
 import com.pas.pojo.Standings;
 import com.pas.util.NFLUtil;
 import com.pas.util.StandingsComparator;
+import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
@@ -45,7 +46,7 @@ public class StandingsLogic implements Serializable
 			this.setStandings();
 			
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/standings.xhtml";
+            String targetURL = Utils.getContextRoot() + "/standings.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 

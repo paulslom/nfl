@@ -21,10 +21,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.pas.beans.NflMain;
 import com.pas.beans.NflTeam;
 import com.pas.dynamodb.DynamoNflGame;
+import com.pas.nfl.constants.INFLAppConstants;
 import com.pas.pojo.Decade;
 import com.pas.pojo.OuterWeek;
 
 import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 public class Utils 
@@ -357,6 +359,22 @@ public class Utils
 		}
 		
 		return newList;
+	}
+	
+	public static String getContextRoot()
+	{
+		String contextRoot = "";
+		try
+		{
+			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+	    	HttpSession httpSession = request.getSession();	
+	        contextRoot = (String) httpSession.getAttribute(INFLAppConstants.CONTEXT_ROOT);
+		}
+		catch (Exception e)
+		{			
+		}
+		
+		return contextRoot;
 	}
 	
 	

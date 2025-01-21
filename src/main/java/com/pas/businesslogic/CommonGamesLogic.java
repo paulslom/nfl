@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -15,6 +16,7 @@ import com.pas.beans.NflMain;
 import com.pas.beans.NflTeam;
 import com.pas.dynamodb.DynamoNflGame;
 import com.pas.nfl.constants.INFLAppConstants;
+import com.pas.spring.SpringBean;
 import com.pas.util.NFLUtil;
 import com.pas.util.Utils;
 
@@ -63,7 +65,7 @@ public class CommonGamesLogic implements Serializable
 			this.setNfcTeamsList(Utils.insertBlankRowsInList(nflMain.getNfcTeamsList()));	
 			
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/commonGamesSelection.xhtml";
+            String targetURL = Utils.getContextRoot() + "/commonGamesSelection.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 
@@ -119,7 +121,7 @@ public class CommonGamesLogic implements Serializable
 			createCommonGamesResults(commonGamesTeams);		
 			
 			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/commonGamesResults.xhtml";
+            String targetURL = Utils.getContextRoot() + "/commonGamesResults.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
 						

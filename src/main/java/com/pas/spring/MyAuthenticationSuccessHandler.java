@@ -4,9 +4,12 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import com.pas.nfl.constants.INFLAppConstants;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +19,9 @@ import jakarta.servlet.http.HttpSession;
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler
 { 
 	private static Logger logger = LogManager.getLogger(MyAuthenticationSuccessHandler.class);
+	
+	@Autowired
+    private SpringBean springBean;
 	
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, 
@@ -44,9 +50,12 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
             {
             	session.setAttribute("currentUserisUser", false);
             }
+            
+            session.setAttribute(INFLAppConstants.CONTEXT_ROOT, springBean.getContextRoot());
+            
         }       
         
-        String whereTo = "/nfl/main.xhtml";
+        String whereTo = springBean.getContextRoot() + "/main.xhtml";
         logger.info("redirecting to: " + whereTo);
 		response.sendRedirect(whereTo);
         

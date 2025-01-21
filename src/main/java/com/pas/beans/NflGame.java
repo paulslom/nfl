@@ -195,7 +195,7 @@ public class NflGame implements Serializable
 		    
 		    nflMain.setRenderGameViewAddUpdateDelete(); 
 		    
-		    String targetURL = "/nfl/gameAddUpdate.xhtml";
+		    String targetURL = Utils.getContextRoot() + "/gameAddUpdate.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL + " with operation: " + acid);
         } 

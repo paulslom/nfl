@@ -17,6 +17,7 @@ import com.pas.nfl.constants.INFLAppConstants;
 import com.pas.pojo.Draft;
 import com.pas.util.DraftComparator;
 import com.pas.util.NFLUtil;
+import com.pas.util.Utils;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
@@ -52,7 +53,7 @@ public class DraftLogic implements Serializable
 			this.setDraft();
 			
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-            String targetURL = "/nfl/draft.xhtml";
+            String targetURL = Utils.getContextRoot() + "/draft.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 

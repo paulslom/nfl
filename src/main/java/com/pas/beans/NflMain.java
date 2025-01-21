@@ -205,7 +205,7 @@ public class NflMain implements Serializable
             this.setSelectedTeamID(0); //so as to assure we don't pick a team in getGameScoresList
             
             ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();		   		    
-		    String targetURL = "/nfl/gameScores.xhtml";
+		    String targetURL = Utils.getContextRoot() + "/gameScores.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 
@@ -255,7 +255,7 @@ public class NflMain implements Serializable
             this.setSelectedWeekNumber(0); //so as to assure we don't pick a week in getGameScoresList
             this.setSelectedWeekDescription("");; //so as to assure we don't pick a week in getGameScoresList
 
-            String targetURL = "/nfl/gameScores.xhtml";
+            String targetURL = Utils.getContextRoot() + "/gameScores.xhtml";
 		    ec.redirect(targetURL);
             logger.info("successfully redirected to: " + targetURL);
         } 
