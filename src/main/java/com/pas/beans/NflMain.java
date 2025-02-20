@@ -27,8 +27,9 @@ import com.pas.pojo.OuterWeek;
 import com.pas.pojo.Schedule;
 import com.pas.util.Utils;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
@@ -37,7 +38,7 @@ import jakarta.faces.model.SelectItem;
 import jakarta.inject.Named;
 
 @Named("pc_NflMain")
-@SessionScoped
+@ApplicationScoped
 public class NflMain implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -79,10 +80,9 @@ public class NflMain implements Serializable
 	private NflTeamDAO nflTeamDAO;
 	private NflSeasonDAO nflSeasonDAO;
 	
-	@PostConstruct
-	public void init() 
+	public void onStart(@Observes @Initialized(ApplicationScoped.class) Object pointless) 
 	{
-		logger.info("Entering NflMain init method.  Should only be here ONE time");	
+		logger.info("Entering NflMain onStart method.  Should only be here ONE time");	
 		logger.info("NflMain id is: " + this.getId());
 		this.setSiteTitle("Slomkowski NFL");
 		

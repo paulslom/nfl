@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -16,7 +15,6 @@ import com.pas.beans.NflMain;
 import com.pas.beans.NflTeam;
 import com.pas.dynamodb.DynamoNflGame;
 import com.pas.nfl.constants.INFLAppConstants;
-import com.pas.spring.SpringBean;
 import com.pas.util.NFLUtil;
 import com.pas.util.Utils;
 
